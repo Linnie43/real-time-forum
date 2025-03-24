@@ -90,8 +90,8 @@ func FilterCategories() string {
 
 }
 
-// Votes returns the query to fetch Like.type for a post or a comment
-func Votes() string {
+// Likes returns the query to fetch Like.type for a post or a comment
+func Likes() string {
 	query := `
     SELECT type
     FROM Like

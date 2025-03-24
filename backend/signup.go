@@ -1,4 +1,4 @@
-package web
+package backend
 
 import (
 	"log"
@@ -16,11 +16,11 @@ func SignUp(w http.ResponseWriter, r *http.Request, data *PageDetails) {
 	data.ValidationError = ""
 	switch r.Method {
 	case http.MethodGet:
-		RenderTemplate(w, "signup", data)
+		//RenderTemplate(w, "signup", data)
 	case http.MethodPost:
 		handleSignUpPost(w, r, data)
 	default:
-		ErrorHandler(w, "Method Not Allowed", http.StatusNotFound)
+		//ErrorHandler(w, "Method Not Allowed", http.StatusNotFound)
 	}
 }
 
@@ -32,35 +32,35 @@ func handleSignUpPost(w http.ResponseWriter, r *http.Request, data *PageDetails)
 	// Validate username
 	if !IsValidUsername(username) {
 		data.ValidationError = "Invalid username: must be 3-20 characters, letters, numbers, or _"
-		RenderTemplate(w, "signup", data)
+		//RenderTemplate(w, "signup", data)
 		return
 	}
 
 	if !isValidEmail(email) {
 		data.ValidationError = "Invalid email address"
-		RenderTemplate(w, "signup", data)
+		//RenderTemplate(w, "signup", data)
 		return
 	}
 	if password == "" {
 		data.ValidationError = "Password cannot be empty"
-		RenderTemplate(w, "signup", data)
+		//RenderTemplate(w, "signup", data)
 		return
 	}
 
 	uniqueUsername, uniqueEmail, err := isUsernameOrEmailUnique(username, email)
 	if err != nil {
 		log.Println("Error checking if username is unique:", err)
-		ErrorHandler(w, "Internal Server Error", http.StatusInternalServerError)
+		//ErrorHandler(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	if !uniqueUsername {
 		data.ValidationError = "Username is already taken"
-		RenderTemplate(w, "signup", data)
+		//RenderTemplate(w, "signup", data)
 		return
 	}
 	if !uniqueEmail {
 		data.ValidationError = "Email is already registered to existing user"
-		RenderTemplate(w, "signup", data)
+		//RenderTemplate(w, "signup", data)
 		return
 	}
 
@@ -68,7 +68,7 @@ func handleSignUpPost(w http.ResponseWriter, r *http.Request, data *PageDetails)
 	hashedPassword, err := hashPassword(password)
 	if err != nil {
 		log.Println("Error hashing password:", err)
-		ErrorHandler(w, "Internal Server Error", http.StatusInternalServerError)
+		//ErrorHandler(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
@@ -76,7 +76,7 @@ func handleSignUpPost(w http.ResponseWriter, r *http.Request, data *PageDetails)
 	err = insertUserIntoDB(username, email, hashedPassword)
 	if err != nil {
 		log.Println("Error inserting user into database:", err)
-		ErrorHandler(w, "Internal Server Error", http.StatusInternalServerError)
+		//ErrorHandler(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 

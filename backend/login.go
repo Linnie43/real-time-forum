@@ -1,4 +1,4 @@
-package web
+package backend
 
 import (
 	"net/http"
@@ -12,12 +12,10 @@ import (
 func Login(w http.ResponseWriter, r *http.Request, data *PageDetails) {
 	data.ValidationError = ""
 	switch r.Method {
-	case http.MethodGet:
-		RenderTemplate(w, "login", data)
 	case http.MethodPost:
 		HandleLoginPost(w, r, data)
 	default:
-		ErrorHandler(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		//ErrorHandler(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
 }
 
@@ -29,20 +27,20 @@ func HandleLoginPost(w http.ResponseWriter, r *http.Request, data *PageDetails) 
 	userID, hashedPassword, err := getUserCredentials(username)
 	if err != nil {
 		data.ValidationError = "Invalid username"
-		RenderTemplate(w, "login", data)
+		//RenderTemplate(w, "login", data)
 		return
 	}
 
 	// Verify password
 	if err := verifyPassword(hashedPassword, password); err != nil {
 		data.ValidationError = "Invalid password"
-		RenderTemplate(w, "login", data)
+		//RenderTemplate(w, "login", data)
 		return
 	}
 
 	// Create session
 	if err := createSession(w, userID); err != nil {
-		ErrorHandler(w, "Internal Server Error", http.StatusInternalServerError)
+		//ErrorHandler(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
@@ -70,22 +68,32 @@ func verifyPassword(hashedPassword, password string) error {
 // createSession creates a new session for the user and stores it in the database
 func createSession(w http.ResponseWriter, userID int) error {
 	// First check for and delete any existing sessions for this user
-	_, err := db.Exec("DELETE FROM Session WHERE user_id = ?", userID)
+	_, err := db.Exec("UPDATE Session SET status = 'deleted', updated_at = ? WHERE user_id = ?",
+		time.Now().Format("2006-01-02 15:04:05"), userID)
 	if err != nil {
 		return err
 	}
 	sessionID := uuid.NewString()
+	expirationTime := time.Now().Add(30 * time.Minute)
+	currentTime := time.Now().Format("2006-01-02 15:04:05")
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_id",
 		Value:    sessionID,
-		Expires:  time.Now().Add(30 * time.Minute),
-		HttpOnly: true,
+		Expires:  expirationTime,
+		HttpOnly: true, // Prevent JavaScript from accessing the cookie
 		Path:     "/",
 	})
 
 	// Store session ID in database
-	_, err = db.Exec("INSERT INTO Session (id, user_id, created_at) VALUES (?, ?, ?)",
-		sessionID, userID, time.Now().Format("2006-01-02 15:04:05"))
-
+	_, err = db.Exec(`
+    INSERT INTO Session (id, user_id, created_at, updated_at, expires_at, last_access) 
+    VALUES (?, ?, ?, ?, ?, ?)`,
+		sessionID, // Using the same UUID for session_token
+		userID,
+		currentTime,
+		currentTime,
+		expirationTime.Format("2006-01-02 15:04:05"), // expires_at (correct format)
+		currentTime,
+	)
 	return err
 }

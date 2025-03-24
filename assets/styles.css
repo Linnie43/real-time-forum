@@ -1,117 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
 @import url('https://fonts.googleapis.com/css2?family=Limelight&display=swap');
 
-/*------ General styles ------*/
-
 body {
     font-family: Arial, sans-serif;
-    background-color: white;
+    background: #f9f9f9;
     margin: 0;
     padding: 0;
-    height: 100%; 
+    height: 100vh; 
     display: flex; 
-    justify-content: center; 
-    align-items: flex-start; 
+    flex-direction: column;
     overflow: auto;
 }
 
 /* Wrapper to ensure correct padding for containers */
 .wrapper {
-    padding-top: 100px;
-    padding-bottom: 100px;
+    display: flex;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    width: 100%;
-}
-
-/* Main content area */
-main {
-    max-width: 800px;
-    width: clamp(200px, 60%, 1000px);
-    margin: 0 auto;
-    padding: 1rem;
-    background: #e5f0e5;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-    min-height: 100%; /* Allow it to expand */
-}
-
-a {
-    color: #1b2218be;
-    text-decoration: none;
-}
-
-a:hover {
-    color:#738b7c;
-}
-
-/* Categories (visually) */
-.category-tags {
-    padding: 5px 10px;
-    margin-top: 10px;
-    border: 2px solid #5C7164;
-    border-radius: 20px;
-    font-size: 16px;
-    display: inline-block;
-    text-align: center;
-    background-color: #5C7164;
-    color: white;
-}
-
-/* Container styling for forms */
-.container {
-    width: clamp(200px, 60%, 800px);
-    max-width: 400px;
-    background: #e5f0e5;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin: 50px;
-}
-
-textarea {
-    resize: none;
-    overflow: hidden;
-}
-
-pre {
-    font-family: Arial, Helvetica, sans-serif;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    color: #1b2218be
-}
-
-/* Form styling */
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-label {
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-/* Headings */
-h1 {
-    text-align: center;
-    color: #5C7164;
-}
-
-h2 {
-    color: #1b2218be;
-}
-
-h3 {
-    color: #1b2218;
-}
-
-p {
-    color: #1b2218be;
+    width: 75vw;
+    justify-content: center;
 }
 
 /*------ Buttons ------*/
@@ -131,158 +37,173 @@ button:hover {
     transition: background-color 0.1s ease-in 0.1s;
 }
 
-/*------ Navigation bar ------*/
+/*------ Header ------*/
 
-nav {
+header {
     display: flex;
     justify-content: space-between;
-    background-color: #e5f0e5;
+    align-items: center;
     padding: 1rem 0;
+    background-color: #e5f0e5;
     position: fixed; 
     top: 0; 
-    width: 100%;
-    z-index: 999;
+    height: 50px;
+    width: 100vw;
 }
-.nav-left {
+
+.header-left {
     padding-left: 20px;
-    padding-top: 5px;
 }
-.nav-right {
+
+.header-middle {
+    flex-grow: 1;
     display: flex;
-    align-items: center;
-    gap: 10px;
+    justify-content: center;
+}
+
+.header-right {
     padding-right: 20px;
 }
-.welcome-text {
-    font-size: 16px;
-    margin: 0;
-    padding-right: 10px;
-}
 
-nav a {
-    color: #1b2218be;
-    text-decoration: none;
-    margin: 0 1rem;
-    font-size: 1.1rem;
-}
-nav a:hover {
-    color: #738b7c;
-}
+/*------ Text styling ------*/
 
-/*------ Icons ------*/
-
-.icon {
-    cursor: pointer;
-    position: relative;
-    display: inline-block;
-    z-index: 2;
-}
-
-.material-symbols-outlined {
-    font-size: 30px
-}
-
-/*------  Main page content (+Post page) ------*/
-
-/* grit:garden header for main page */
-header {
-    text-align: center;
-    width: 100%;
+h1 {
     font-size: clamp(1.2rem, 5vw, 2.5rem);
     font-family: 'Limelight', Helvetica;
 }
 
-/* Posts header */
-.latest-posts-header {
+/*------ Main section ------*/
+
+main {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-
-/* Create post link */
-.create-post {
-    margin-left: auto; /* Pushes the link to the far right */
-    text-decoration: none;
-}
-
-/* Username styling (home page) */
-.username {
-    font-size: 16px;
-}
-
-/* For grouping comment icon + num */
-.comment-icon {
-    display: flex;
-    align-items: center;
-    margin: 5px 0;
-    gap: 5px; 
-    color: #1b2218;
-    font-weight: bold;
-}
-
-/* Container for name + icon (post page) */
-.post-info {
-    display: flex;
-    align-items: center;
-    margin: 5px 0; 
-    color: #1b2218;
-    font-weight: bold;
-}
-
-/* Container for name + icon (home page) */
-.post-info-home {
-    display: flex;
-    align-items: center;
-    margin: 5px 0; 
-    color: #1b2218;
-    font-weight: bold;
-    border-bottom: #ccc 1px solid;
-    padding-bottom: 10px;
-}
-
-/* For general post text (home page) */
-.post-content {
-    padding-top: 2px;
-    padding-bottom: 2px;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.icons-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    border-top: #ccc 1px solid;
-    padding-top: 5px;
-}
-
-/* Post Cards styling (post page) */
-.post {
-    margin-bottom: 1.5rem;
+    flex-direction: column;
+    width: 50vw;
+    margin-top: 15vh;
+    margin-bottom: 15vh;
     padding: 1rem;
-    border: 1px solid #ddd;
+    background: #e5f0e5;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     border-radius: 5px;
-    background-color: #fff;
+    max-height: min-content;
+    overflow: auto;
+}
+
+/*------ SignUp LogIn CreatePost styling ------*/
+
+/* Hide the info text by default (sign up page) */
+.tooltip {
+    display: none;
+    position: absolute;
+    background-color: #5C7164;
+    color: #fff;
+    text-align: center;
+    padding: 8px;
+    border-radius: 5px;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    font-size: 15px;
+}
+
+.hover-icon {
+    cursor: pointer;
+    align-items: center;
+    display: inline-block;
+    position: relative;
+}
+
+.hover-icon:hover .tooltip {
     display: block;
 }
 
-.post h2 {
-    margin: 0 0 0.5rem;
+/* Styling input for forms (signup login page) */
+input[type="text"], input[type="password"] {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
-.post h3 {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+/* Links inside the form (e.g., for signup links) */
+.signup-link {
+    text-align: center;
+    margin-top: 15px;
 }
 
-.post p {
-    margin: 0.5rem 0;
+.signup-link a {
+    color: #5C7164;
+    text-decoration: none;
+}
+
+.signup-link a:hover {
+    text-decoration: underline;
+}
+
+/* Textarea styling (create post page) */
+/* .content-textarea {
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 50px;
+} */
+
+/* create-post category selection */
+/* .category-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+} */
+
+/* .category-label {
+    padding: 10px 15px;
+    margin-top: 10px;
+    border: 2px solid #5C7164;
+    border-radius: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s ease-in-out;
+    background-color: white;
+    color: #5C7164;
+    display: inline-block;
+    text-align: center;
+} */
+
+/* Hide the default checkbox */
+/* .category-label input {
+    display: none;
+} */
+
+/* When checkbox is checked */
+/* .category-label input:checked + label,
+.category-label:has(input:checked) {  The :has() selector ensures the label updates */
+    /* background-color: #5C7164;
+    color: white;
+    border-color: #5C7164;
+} */
+
+/* Hover effect */
+/* .category-label:hover {
+    background-color: #C9DED1;
+} */
+
+/* Hide the 'General' category (index 0) */
+/* .hidden-category {
+    display: none;
+} */
+
+/*------ Feed page (root) ------*/
+
+/* Feed header */
+.feed-header {
+    display: flex;
+    justify-content: center; /* Center the content horizontally */
+    align-items: center; /* Align vertically if needed */
+}
+
+.username {
+    font-size: 16px;
 }
 
 .post-card {
@@ -357,188 +278,151 @@ header {
     margin-bottom: 10px;
 }
 
-/*------ Filtering ------*/
-
-.filter {
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 18px;
-    display: none; /* Keep this as none initially */
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out, margin 0.3s ease-in-out;
-}
-
-.filter-label {
-    font-size: 0.8em;
-    margin: 0;
-}
-
-.filter-group {
+.icons-container {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px; 
-    margin: 10px 0;
-}
-
-.or {
-    font-size: 18px;
-    margin: 0 10px;
-}
-
-.filter-button {
-    font-size: 14px;
+    margin-bottom: 10px;
+    border-top: #ccc 1px solid;
+    padding-top: 5px;
     margin-top: 10px;
 }
 
-/* When the filter is shown */
-.filter.show {
-    display: flex; 
-    opacity: 1;
-    margin: 10px 0;
-    padding: 10px;
-    border-color: #ccc;
-    background-color: white;
-}
-
-/* Align the button to the right */
-.show-filter-button {
-    background-color: #5C7164;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    border-radius: 5px;
-    margin-bottom: 0;
-    display: block;
-    margin-left: auto;
-}
-
-.show-filter-button:hover {
-    background-color: #74907f;
-}
-
-/*------ SignUp LogIn CreatePost styling ------*/
-
-/* Hide the info text by default (sign up page) */
-.tooltip {
-    display: none;
-    position: absolute;
-    background-color: #5C7164;
-    color: #fff;
-    text-align: center;
-    padding: 8px;
-    border-radius: 5px;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-    z-index: 10;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-    font-size: 15px;
-}
-
-.hover-icon {
-    cursor: pointer;
+/* For grouping comment icon + num */
+.comment-icon {
+    display: flex;
     align-items: center;
-    display: inline-block;
-    position: relative;
+    margin: 5px 0;
+    gap: 5px; 
+    color: #1b2218;
+    font-weight: bold;
 }
 
-.hover-icon:hover .tooltip {
-    display: block;
+/* Container for name + icon (post page) */
+.post-info {
+    display: flex;
+    align-items: center;
+    margin: 5px 0; 
+    color: #1b2218;
+    font-weight: bold;
 }
 
-/* Styling input for forms (signup login page) */
-input[type="text"], input[type="password"] {
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+/* Container for name + icon (home page) */
+.post-info-home {
+    display: flex;
+    align-items: center;
+    margin: 5px 0 10px; 
+    color: #1b2218;
+    font-weight: bold;
+    border-bottom: #ccc 1px solid;
+    padding-bottom: 10px;
 }
 
-/* Links inside the form (e.g., for signup links) */
-.signup-link {
-    text-align: center;
-    margin-top: 15px;
+/* For general post text (home page) */
+.post-content {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
-.signup-link a {
-    color: #5C7164;
-    text-decoration: none;
+/* Post Cards styling (post page) */
+.post {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
 }
 
-.signup-link a:hover {
-    text-decoration: underline;
+.post h2 {
+    margin: 0 0 0.5rem;
 }
 
-/* Textarea styling (create post page) */
-.content-textarea {
-    font-family: Arial, Helvetica, sans-serif;
-    min-height: 50px;
+.post p {
+    margin: 0.5rem 0;
 }
 
-/* create-post category selection */
+.post-card {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
 .category-container {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
 }
 
-.category-label {
-    padding: 10px 15px;
+/* Categories (visually) */
+.category-tags {
+    padding: 5px 10px;
     margin-top: 10px;
     border: 2px solid #5C7164;
     border-radius: 20px;
     font-size: 16px;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.3s ease-in-out;
-    background-color: white;
-    color: #5C7164;
     display: inline-block;
     text-align: center;
-}
-
-/* Hide the default checkbox */
-.category-label input {
-    display: none;
-}
-
-/* When checkbox is checked */
-.category-label input:checked + label,
-.category-label:has(input:checked) {  /* The :has() selector ensures the label updates */
     background-color: #5C7164;
     color: white;
-    border-color: #5C7164;
 }
 
-/* Hover effect */
-.category-label:hover {
-    background-color: #C9DED1;
+.reaction-buttons {
+    display: flex;
+    align-items: center;
+    margin: 5px 0; 
+}
+  
+.reaction-count {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 5px;
 }
 
-/* Hide the 'General' category (index 0) */
-.hidden-category {
-    display: none;
+/*------ Sidebar ------*/
+
+#chat-sidebar {
+    position: fixed;
+    top: 90px; /* Position just below the header */
+    right: 10px;
+    bottom: 90px;
+    width: 25vw;
+    max-height: calc(100vh - 90px - 70px);
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    overflow-y: auto;
+    padding: 10px;
+}
+
+#chat-sidebar h3 {
+    margin: 0 0 1rem 0; 
+    border-bottom: 2px solid #e5f0e5; 
+    padding-bottom: 10px;
+    width: 100%;
+}
+
+#chat-users {
+    flex-grow: 1;
+    width: 100%;
 }
 
 /*------ Footer ------*/
 
 footer {
     background-color: #e5f0e5;
-    color: white;
+    color: black;
     text-align: center;
     padding: 1rem 0;
     position: fixed;
     bottom: 0;
-    width: 100%;
-}
-
-/* When window is resized then filter label and or should get their own rows */
-@media (max-width: 650px) {
-    .filter-group {
-        flex-direction: column;
-    }
+    height: 5vh;
+    width: 100vw;
 }

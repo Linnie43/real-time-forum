@@ -1,9 +1,9 @@
-package web
+package backend
 
 import (
 	"database/sql"
-	"forum/database"
 	"log"
+	"real-time-forum/database"
 	"strings"
 )
 
@@ -63,7 +63,7 @@ func GetPostDetails(postID, userID int) (*PostDetails, error) {
 		return nil, err
 	}
 
-	post.LikedNow, post.DislikedNow, err = GetVotes(userID, postID, 0)
+	post.LikedNow, post.DislikedNow, err = GetLikes(userID, postID, 0)
 	if err != nil {
 		log.Println("Error getting votes")
 		return nil, err
@@ -100,7 +100,7 @@ func GetComments(postID, userID int) ([]CommentDetails, error) {
 			return nil, err
 		}
 
-		comment.LikedNow, comment.DislikedNow, err = GetVotes(userID, 0, comment.CommentID)
+		comment.LikedNow, comment.DislikedNow, err = GetLikes(userID, 0, comment.CommentID)
 		if err != nil {
 			log.Println("Error getting votes")
 			return nil, err
@@ -111,15 +111,15 @@ func GetComments(postID, userID int) ([]CommentDetails, error) {
 	return comments, nil
 }
 
-// GetVotes fetches the votes for a specific post or comment from the database
-func GetVotes(userID, postID, commentID int) (bool, bool, error) {
+// GetLikes fetches the votes for a specific post or comment from the database
+func GetLikes(userID, postID, commentID int) (bool, bool, error) {
 	if userID != 0 {
 		var rows *sql.Rows
 		var err error
 		if postID == 0 {
-			rows, err = db.Query(database.Votes(), userID, nil, commentID)
+			rows, err = db.Query(database.Likes(), userID, nil, commentID)
 		} else {
-			rows, err = db.Query(database.Votes(), userID, postID, nil)
+			rows, err = db.Query(database.Likes(), userID, postID, nil)
 		}
 		if err != nil {
 			log.Println("Error fetching votes from database")
