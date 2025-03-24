@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <h1>Forum</h1>
+        <button id="logout-btn">Logout</button>
+    </nav>
+
+    <section id="login-section">
+        <h2>Login</h2>
+        <input type="text" id="login-username" placeholder="Nickname or Email">
+        <input type="password" id="login-password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <p>Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
+    </section>
+
+    <section id="register-section" style="display: none;">
+        <h2>Register</h2>
+        <input type="text" id="register-nickname" placeholder="Nickname">
+        <input type="number" id="register-age" placeholder="Age">
+        <input type="text" id="register-gender" placeholder="Gender">
+        <input type="text" id="register-firstname" placeholder="First Name">
+        <input type="text" id="register-lastname" placeholder="Last Name">
+        <input type="email" id="register-email" placeholder="Email">
+        <input type="password" id="register-password" placeholder="Password">
+        <button onclick="register()">Register</button>
+        <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+    </section>
+
+    <section id="forum-section" style="display: none;">
+        <h2>Create a Post</h2>
+        <input type="text" id="post-title" placeholder="Title">
+        <textarea id="post-content" placeholder="What's on your mind?"></textarea>
+        <input type="text" id="post-category" placeholder="Category">
+        <button onclick="createPost()">Post</button>
+
+        <h2>Recent Posts</h2>
+        <div id="post-feed"></div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
