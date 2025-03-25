@@ -1,4 +1,4 @@
-package backend
+package structs
 
 type CommentDetails struct {
 	CommentID   int    `json:"comment_id"`
@@ -7,10 +7,6 @@ type CommentDetails struct {
 	UserID      int    `json:"user_id"`
 	Username    string `json:"username"`
 	CreatedAt   string `json:"created_at"`
-	Likes       int    `json:"likes"`
-	Dislikes    int    `json:"dislikes"`
-	LikedNow    bool   `json:"liked_now"`
-	DislikedNow bool   `json:"disliked_now"`
 }
 
 type PostDetails struct {
@@ -22,10 +18,6 @@ type PostDetails struct {
 	Comments    []CommentDetails `json:"comments"`
 	Categories  []string         `json:"categories"`
 	CreatedAt   string           `json:"created_at"`
-	Likes       int              `json:"likes"`
-	Dislikes    int              `json:"dislikes"`
-	LikedNow    bool             `json:"liked_now"`
-	DislikedNow bool             `json:"disliked_now"`
 }
 
 type PageDetails struct {

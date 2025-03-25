@@ -15,5 +15,13 @@ func InitDB() *sql.DB {
 		log.Fatal(err)
 
 	}
+	defer db.Close()
+
+	_, err = db.Exec(CreateTables)
+	if err != nil {
+		log.Println("Failed to create tables")
+		log.Fatal(err)
+	}
+
 	return db
 }

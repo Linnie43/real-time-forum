@@ -9,10 +9,11 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+	"real-time-forum/backend/database/structs"
 )
 
 // signUp handles both GET and POST requests for user registration
-func SignUp(w http.ResponseWriter, r *http.Request, data *PageDetails) {
+func SignUp(w http.ResponseWriter, r *http.Request, data *structs.PageDetails) {
 	data.ValidationError = ""
 	switch r.Method {
 	case http.MethodGet:
@@ -24,7 +25,7 @@ func SignUp(w http.ResponseWriter, r *http.Request, data *PageDetails) {
 	}
 }
 
-func handleSignUpPost(w http.ResponseWriter, r *http.Request, data *PageDetails) {
+func handleSignUpPost(w http.ResponseWriter, r *http.Request, data *structs.PageDetails) {
 	username := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")

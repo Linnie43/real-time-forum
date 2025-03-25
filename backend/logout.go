@@ -3,11 +3,12 @@ package backend
 import (
 	"log"
 	"net/http"
+	"real-time-forum/backend/database/structs"
 	"time"
 )
 
 // Logout logs out the user by deleting the session from the database and setting the session cookie to expire
-func Logout(w http.ResponseWriter, r *http.Request, data *PageDetails) {
+func Logout(w http.ResponseWriter, r *http.Request, data *structs.PageDetails) {
 
 	cookie, err := r.Cookie("session_id")
 	if err == nil {

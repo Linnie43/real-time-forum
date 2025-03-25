@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"real-time-forum/backend/database/structs"
 )
 
 // HomePage handles the rendering of the home page
@@ -44,8 +45,8 @@ func GetFeed(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetPosts fetches all posts from the database and returns them as a slice of PostDetails
-func GetPosts(userID int) ([]PostDetails, error) {
-	var posts []PostDetails
+func GetPosts(userID int) ([]structs.PostDetails, error) {
+	var posts []structs.PostDetails
 
 	// Query to get all posts ordered by creation date
 	query := `

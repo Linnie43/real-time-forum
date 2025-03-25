@@ -4,12 +4,14 @@ import (
 	"net/http"
 	"time"
 
+	"real-time-forum/backend/database/structs"
+
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // Login handles both GET and POST requests for user authentication
-func Login(w http.ResponseWriter, r *http.Request, data *PageDetails) {
+func Login(w http.ResponseWriter, r *http.Request, data *structs.PageDetails) {
 	data.ValidationError = ""
 	switch r.Method {
 	case http.MethodPost:
@@ -20,7 +22,7 @@ func Login(w http.ResponseWriter, r *http.Request, data *PageDetails) {
 }
 
 // HandleLoginPost handles the user login form submission
-func HandleLoginPost(w http.ResponseWriter, r *http.Request, data *PageDetails) {
+func HandleLoginPost(w http.ResponseWriter, r *http.Request, data *structs.PageDetails) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 

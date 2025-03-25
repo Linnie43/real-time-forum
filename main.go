@@ -4,27 +4,22 @@ import (
 	"log"
 	"net/http"
 	"real-time-forum/backend"
-	"real-time-forum/database"
+	"real-time-forum/backend/database"
 	"text/template"
 )
 
 func main() {
 
 	// Parse and serve the template
-	tmpl, err := template.ParseFiles("index.html")
+	tmpl, err := template.ParseFiles("frontend/index.html")
 	if err != nil {
 		log.Fatal("Error parsing template")
 		return
 	}
 
-	http.Handle("/assets/", http.FileServer(http.Dir(".")))
-	http.Handle("/js/", http.FileServer(http.Dir(".")))
-
+	http.Handle("/frontend/", http.FileServer(http.Dir(".")))
 	// Initialize database
 	db := database.InitDB()
-	defer db.Close()
-
-	database.MakeTables(db)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
