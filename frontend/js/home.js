@@ -1,195 +1,499 @@
 class HomePage extends HTMLElement {
-    constructor() {
-      super();
-    }
-  
-    async connectedCallback() {
-      this.render();
-    }
-  
-    async render() {
-      const POST_BOARD = new PostBoard();
-      const USER_LIST = new UserList();
-      this.appendChild(POST_BOARD);
-      this.appendChild(USER_LIST);
+  constructor() {
+    super();
+  }
+
+  async connectedCallback() {
+    this.render();
+  }
+
+  async render() {
+    const POST_BOARD = new PostBoard();
+    const USER_LIST = new UserList();
+    this.appendChild(POST_BOARD);
+    this.appendChild(USER_LIST);
+  }
+}
+
+customElements.define("home-page", HomePage);
+
+class PostBoard extends HTMLElement {
+  constructor() {
+    super();
+  }
+
+  async connectedCallback() {
+    this.render();
+  }
+
+  async render() {
+    let lastPost = localStorage.getItem("post") || null;
+    if (lastPost) {
+      this.renderPost(JSON.parse(lastPost));
+    } else {
+      this.renderPosts();
     }
   }
-  
-  customElements.define("home-page", HomePage);
-  
-  class PostBoard extends HTMLElement {
-    constructor() {
-      super();
-    }
-  
-    async connectedCallback() {
-      this.render();
-    }
-  
-    async render() {
-      let lastPost = localStorage.getItem("post") || null;
-      if (lastPost) {
-        this.renderPost(JSON.parse(lastPost));
-      } else {
-        this.renderPosts();
-      }
-    }
-  
-    async renderPosts() {
-      this.innerHTML = `
-          <h2>Create Post</h2>
-          <post-form></post-form>
-          <h2>Posts</h2>
-          <div class="post-categories">
-              <input type="radio" name="category" id="all" value="all" checked />
-              <label for="all">All</label>
-              <input type="radio" name="category" id="hobbies" value="hobbies" />
-              <label for="hobbies">Hobbies</label>
-              <input type="radio" name="category" id="health" value="health" />
-              <label for="health">Health</label>
-              <input type="radio" name="category" id="tech" value="tech" />
-              <label for="tech">Tech</label>
-              <input type="radio" name="category" id="music" value="music" />
-              <label for="music">Music</label>
-          </div>
-          <div class="post-container">
-          </div>
-      `;
-      document.querySelector(".post-categories").onchange = (event) => {
-        const POSTS = document.querySelectorAll("post-element");
-        POSTS.forEach((post) => {
-          if (event.target.value === "all") {
-            post.style.display = "block";
-          } else if (post.postData.category !== event.target.value) {
-            post.style.display = "none";
-          } else {
-            post.style.display = "block";
-          }
-        });
-      };
-      const POSTS = await getData("/post");
-      POSTS.forEach((postData) => {
-        const POST_ELEMENT = new Post(postData);
-        POST_ELEMENT.addEventListener("click", () => {
-          localStorage.setItem("post", JSON.stringify(postData));
-          document.querySelector(".logo").innerHTML = "BACK";
-          this.renderPost(postData);
-  
-          scrollTo(0, 0);
-        });
-  
-        this.querySelector(".post-container").appendChild(POST_ELEMENT);
+
+  async renderPosts() {
+    this.innerHTML = `
+        <h2>Create Post</h2>
+        <post-form></post-form>
+        <h2>Posts</h2>
+        <div class="post-categories">
+            <input type="radio" name="category" id="all" value="all" checked />
+            <label for="all">All</label>
+            <input type="radio" name="category" id="productivity" value="productivity" />
+            <label for="productivity">Productivity</label>
+            <input type="radio" name="category" id="programming" value="programming" />
+            <label for="programming">Programming</label>
+            <input type="radio" name="category" id="gaming" value="gaming" />
+            <label for="gaming">Gaming</label>
+            <input type="radio" name="category" id="lifestyle" value="lifestyle" />
+            <label for="lifestyle">Lifestyle</label>
+        </div>
+        <div class="post-container">
+        </div>
+    `;
+    document.querySelector(".post-categories").onchange = (event) => {
+      const POSTS = document.querySelectorAll("post-element");
+      POSTS.forEach((post) => {
+        if (event.target.value === "all") {
+          post.style.display = "block";
+        } else if (post.postData.category !== event.target.value) {
+          post.style.display = "none";
+        } else {
+          post.style.display = "block";
+        }
       });
-    }
-  
-    async renderPost(postData) {
-      this.innerHTML = ``;
-      const POST_PAGE = new Post(postData);
-      POST_PAGE.classList.add("post-full");
-      this.appendChild(POST_PAGE);
-  
-      (await POST_PAGE.getComments()).forEach((comment) => {
-        this.appendChild(comment);
+    };
+    const POSTS = await getData("/post");
+    POSTS.forEach((postData) => {
+      const POST_ELEMENT = new Post(postData);
+      POST_ELEMENT.addEventListener("click", () => {
+        localStorage.setItem("post", JSON.stringify(postData));
+        document.querySelector(".logo").innerHTML = "BACK";
+        this.renderPost(postData);
+
+        scrollTo(0, 0);
       });
-      this.appendChild(new PostForm("comment"));
-    }
+
+      this.querySelector(".post-container").appendChild(POST_ELEMENT);
+    });
   }
-  
-  customElements.define("post-board", PostBoard);
-  
-  class User extends HTMLElement {
-    constructor(user) {
-      super();
-      this.user = user;
-      this.online = false;
-      this.notification = false;
-      this.typing = false;
-      this.typingTimer = null;
-      this.setAttribute("user-id", user.id);
-    }
-  
-    async connectedCallback() {
-      this.render();
-    }
-  
-    async render() {
-      this.innerHTML = `
-        <li>${this.user.username}</li>
-      `;
-    }
-  
-    set online(value) {
-      if (value) {
-        this.setAttribute("online", "");
-      } else {
-        this.removeAttribute("online");
-      }
-    }
+
+  async renderPost(postData) {
+    this.innerHTML = ``;
+    const POST_PAGE = new Post(postData);
+    POST_PAGE.classList.add("post-full");
+    this.appendChild(POST_PAGE);
+
+    (await POST_PAGE.getComments()).forEach((comment) => {
+      this.appendChild(comment);
+    });
+    this.appendChild(new PostForm("comment"));
   }
-  
-  customElements.define("user-element", User);
-  
-  class UserList extends HTMLElement {
-    constructor() {
-      super();
-      this.users = {};
-    }
-  
-    async connectedCallback() {
-      this.render();
-    }
-  
-    async render() {
-      this.innerHTML = `
-        <h3>Users</h3>
-        <ul id="latest-list">
-        </ul>
-        <ul id="user-list">
-        </ul>
-      `;
-  
-      this.users = await this.getUsers();
-    }
-  
-    async getUsers() {
-      const USERS = await getData("/user");
-      const USER_OBJECTS = {};
-      USERS.forEach((user) => {
-        const USER_ELEMENT = new User(user);
-        this.querySelector("#user-list").appendChild(USER_ELEMENT);
-  
-        // Store the user in the collection
-        USER_OBJECTS[user.id] = USER_ELEMENT;
-      });
-      return USER_OBJECTS;
-    }
-  
-    // Add new user to the list alphabetically
-    async addUser(user) {
-      const USER_ELEMENT = new User(user);
-      const USER_LIST = this.querySelector("#user-list");
-      const USER_ELEMENTS = USER_LIST.querySelectorAll("user-element");
-  
-      USER_ELEMENT.online = true;
-  
-      // Find the correct index to insert the user
-      let index = 0;
-      for (let i = 0; i < USER_ELEMENTS.length; i++) {
-        if (USER_ELEMENTS[i].user.username > user.username) {
-          index = i;
-          break;
+}
+
+customElements.define("post-board", PostBoard);
+
+class ChatMessage extends HTMLLIElement {
+  constructor(sender, content, time = null) {
+    super();
+    this.sender = sender;
+    this.content = content;
+    this.time = time === null ? null : new Date(time).toLocaleString();
+    this.classList.add("chat-message");
+  }
+
+  async connectedCallback() {
+    this.render();
+  }
+
+  async render() {
+    this.innerHTML = `
+      <span class="chat-username">${this.sender.username}
+      ${this.time === null ? "" : `<span class="chat-time">${this.time}</span>`}
+      </span>
+      <span class="chat-content">${this.content}</span>
+    `;
+  }
+}
+
+customElements.define("chat-message", ChatMessage, { extends: "li" });
+
+class ChatWindow extends HTMLElement {
+  constructor(receiver) {
+    super();
+    this.receiver = receiver;
+    this.typingTimer = null;
+  }
+
+  async connectedCallback() {
+    this.render();
+
+    let lastScrollTop = 0;
+    let isScrolling;
+    let isTyping = false;
+
+    const CHAT_BODY = this.querySelector(".chat-body");
+    const CHAT_LIST = CHAT_BODY.querySelector("#chat-list");
+
+    CHAT_BODY.onscroll = () => {
+      if (CHAT_BODY.scrollTop < 100 && CHAT_BODY.scrollTop < lastScrollTop) {
+        // 100px buffer zone
+        if (!isScrolling) {
+          isScrolling = true;
+          this.loadMessages();
+
+          // Throttle scroll event
+          setTimeout(() => {
+            isScrolling = false;
+          }, 300);
         }
       }
-  
-      // Insert the user at the correct index
-      USER_LIST.insertBefore(USER_ELEMENT, USER_ELEMENTS[index]);
-  
-      // Store the user in the collection
-      this.users[user.id] = USER_ELEMENT;
-  
-      return USER_ELEMENT;
-    }
-  
+
+      lastScrollTop = CHAT_BODY.scrollTop;
+    };
+
+    await this.loadMessages();
+
+    this.querySelector("#chat-input").oninput = () => {
+      if (!isTyping) {
+        isTyping = true;
+
+        let typingMsg = {
+          id: 0,
+          sender_id: user.id,
+          receiver_id: this.receiver.id,
+          msg_type: "typing",
+        };
+
+        socket.send(JSON.stringify(typingMsg));
+
+        setTimeout(() => {
+          isTyping = false;
+        }, 250);
+      }
+    };
+
+    this.querySelector("#chat-input").focus();
+
+    this.querySelector("#close-chat").onclick = () => {
+      chat = null;
+      this.remove();
+    };
+
+    this.querySelector("#chat-send").onclick = () => {
+      this.sendMessage();
+    };
+
+    this.querySelector("#chat-input").onkeydown = (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        this.sendMessage();
+      }
+    };
+
+    CHAT_BODY.scrollTop = CHAT_LIST.scrollHeight;
   }
-  customElements.define("user-list", UserList);
-  
+
+  async render() {
+    this.innerHTML = `
+      <div class="chat-header">
+        <h3>${this.receiver.username}</h3>
+        <button id="close-chat">✖</button>
+      </div>
+      <div class="chat-body">
+        <ul id="chat-list">
+        </ul>
+      </div>
+      <div class="chat-footer">
+        <textarea id="chat-input" rows="1"></textarea>
+        <button id="chat-send">Send</button>
+      </div>
+    `;
+  }
+
+  async loadMessages() {
+    const CHAT_BODY = this.querySelector(".chat-body");
+    const CHAT_LIST = CHAT_BODY.querySelector("#chat-list");
+    const CHAT_MESSAGES = await getData(
+      `/message?receiver=${this.receiver.id}&offset=${CHAT_LIST.children.length}`
+    );
+
+    // Reverse the messages so they are in chronological order
+    CHAT_MESSAGES.reverse();
+    CHAT_MESSAGES.forEach((message) => {
+      const CHAT_MESSAGE = new ChatMessage(
+        message.sender_id === user.id ? user : this.receiver,
+        message.content,
+        message.date
+      );
+      // Add the message on top of current messages
+      CHAT_LIST.prepend(CHAT_MESSAGE);
+    });
+  }
+
+  async sendMessage() {
+    const CHAT_INPUT = this.querySelector("#chat-input");
+    const CHAT_BODY = this.querySelector(".chat-body");
+    const CHAT_LIST = CHAT_BODY.querySelector("#chat-list");
+
+    if (!CHAT_INPUT.value || !socket) {
+      console.log("No message or socket");
+      return;
+    }
+
+    const RECEIVER_USER_ELEMENT = document.querySelector(
+      `user-element[user-id="${this.receiver.id}"]`
+    );
+
+    // Add the user to the top of #latest-list locally
+    RECEIVER_USER_ELEMENT.remove();
+    document.querySelector("#latest-list").prepend(RECEIVER_USER_ELEMENT);
+
+    const CHAT_MESSAGE = new ChatMessage(user, CHAT_INPUT.value, new Date());
+    CHAT_LIST.appendChild(CHAT_MESSAGE);
+    CHAT_BODY.scrollTop = CHAT_LIST.scrollHeight;
+    CHAT_INPUT.value = "";
+
+    let msgData = {
+      id: 0,
+      sender_id: 0,
+      receiver_id: this.receiver.id,
+      content: CHAT_MESSAGE.content,
+      date: "",
+      msg_type: "msg",
+    };
+
+    socket.send(JSON.stringify(msgData));
+  }
+
+  async receiveMessage(message) {
+    const CHAT_BODY = this.querySelector(".chat-body");
+    const CHAT_LIST = CHAT_BODY.querySelector("#chat-list");
+    const CHAT_MESSAGE = new ChatMessage(
+      message.sender_id === user.id ? user : this.receiver,
+      message.content,
+      message.date
+    );
+    CHAT_LIST.appendChild(CHAT_MESSAGE);
+    this.typingTimer = clearTimeout(this.typingTimer);
+    if (CHAT_LIST.querySelector(".typing"))
+      CHAT_LIST.querySelector(".typing").remove();
+    CHAT_BODY.scrollTop = CHAT_LIST.scrollHeight;
+  }
+
+  async addTypingIndicator() {
+    const CHAT_BODY = this.querySelector(".chat-body");
+    const CHAT_LIST = CHAT_BODY.querySelector("#chat-list");
+
+    // Try to find the typing message
+    let TYPING_MESSAGE = CHAT_LIST.querySelector(".typing");
+
+    // If it doesn't exist, create it
+    if (!TYPING_MESSAGE) {
+      TYPING_MESSAGE = new ChatMessage(this.receiver, "Typing...");
+      TYPING_MESSAGE.classList.add("typing");
+      CHAT_LIST.appendChild(TYPING_MESSAGE);
+    }
+
+    // If there's already a timer, clear it
+    if (this.typingTimer) {
+      clearTimeout(this.typingTimer);
+    }
+
+    // Set a new timer to remove the typing message after 3 seconds
+    this.typingTimer = setTimeout(() => {
+      TYPING_MESSAGE.remove();
+      TYPING_MESSAGE = null;
+    }, 3000);
+
+    // If the user is scrolled to the bottom above the typing message, scroll to the bottom again
+    if (
+      CHAT_BODY.scrollTop + CHAT_BODY.clientHeight >=
+      CHAT_BODY.scrollHeight - 50
+    ) {
+      CHAT_BODY.scrollTop = CHAT_LIST.scrollHeight;
+    }
+  }
+}
+
+customElements.define("chat-window", ChatWindow);
+
+class User extends HTMLElement {
+  constructor(user) {
+    super();
+    this.user = user;
+    this.online = false;
+    this.notification = false;
+    this.typing = false;
+    this.typingTimer = null;
+    this.setAttribute("user-id", user.id);
+  }
+
+  async connectedCallback() {
+    this.render();
+
+    this.onclick = () => {
+      // Remove the chat window if it exists
+      if (chat) {
+        chat.remove();
+        chat = null;
+      }
+
+      // Return if the user is clicking on themselves
+      if (this.user.id === user.id) {
+        return;
+      }
+
+      // Remove the notification if it exists
+      this.notification = false;
+
+      const CHAT_WINDOW = new ChatWindow(this.user);
+      document.querySelector(".container").appendChild(CHAT_WINDOW);
+      chat = CHAT_WINDOW;
+    };
+  }
+
+  async render() {
+    this.innerHTML = `
+      <li>${this.user.username}</li>
+    `;
+  }
+
+  set online(value) {
+    if (value) {
+      this.setAttribute("online", "");
+    } else {
+      this.removeAttribute("online");
+    }
+  }
+
+  set notification(value) {
+    if (value) {
+      this.setAttribute("notification", "");
+    } else {
+      this.removeAttribute("notification");
+    }
+  }
+
+  set typing(value) {
+    if (value) {
+      this.setAttribute("typing", "");
+    } else {
+      this.removeAttribute("typing");
+    }
+  }
+}
+
+customElements.define("user-element", User);
+
+class UserList extends HTMLElement {
+  constructor() {
+    super();
+    this.users = {};
+  }
+
+  async connectedCallback() {
+    this.render();
+  }
+
+  async render() {
+    this.innerHTML = `
+      <h3>Users</h3>
+      <ul id="latest-list">
+      </ul>
+      <ul id="user-list">
+      </ul>
+    `;
+
+    this.users = await this.getUsers();
+  }
+
+  async getUsers() {
+    const USERS = await getData("/user");
+    const USER_OBJECTS = {};
+    USERS.forEach((user) => {
+      const USER_ELEMENT = new User(user);
+      this.querySelector("#user-list").appendChild(USER_ELEMENT);
+
+      // Store the user in the collection
+      USER_OBJECTS[user.id] = USER_ELEMENT;
+    });
+    return USER_OBJECTS;
+  }
+
+  async addNotification(userId) {
+    this.users[userId].notification = true;
+    // Add the user to the top of #latest-list
+    this.users[userId].remove();
+    this.users[userId].typing = false;
+    this.querySelector("#latest-list").prepend(this.users[userId]);
+  }
+
+  // Add new user to the list alphabetically
+  async addUser(user) {
+    const USER_ELEMENT = new User(user);
+    const USER_LIST = this.querySelector("#user-list");
+    const USER_ELEMENTS = USER_LIST.querySelectorAll("user-element");
+
+    USER_ELEMENT.online = true;
+
+    // Find the correct index to insert the user
+    let index = 0;
+    for (let i = 0; i < USER_ELEMENTS.length; i++) {
+      if (USER_ELEMENTS[i].user.username > user.username) {
+        index = i;
+        break;
+      }
+    }
+
+    // Insert the user at the correct index
+    USER_LIST.insertBefore(USER_ELEMENT, USER_ELEMENTS[index]);
+
+    // Store the user in the collection
+    this.users[user.id] = USER_ELEMENT;
+
+    return USER_ELEMENT;
+  }
+
+  async updateOnlineStatus(newOnlineUserIds) {
+    // Remove online status from all users
+    Object.values(this.users).forEach((user) => {
+      user.online = false;
+    });
+
+    // Add online status to new users
+    newOnlineUserIds.forEach((userId) => {
+      // If the user is not in the list, add them
+      if (this.users[userId] === undefined) {
+        getData(`/user?id=${userId}`).then((data) => {
+          return this.addUser(data);
+        });
+
+        return;
+      }
+
+      this.users[userId].online = true;
+    });
+  }
+
+  async addTypingIndicator(userId) {
+    // If the user is not already typing, set the typing attribute
+    if (this.users[userId].typing !== true) {
+      this.users[userId].typing = true;
+    }
+
+    // Clear any existing timeout
+    clearTimeout(this.users[userId].typingTimer);
+
+    // Start a new timeout to remove the typing attribute after 3 seconds of inactivity
+    this.users[userId].typingTimer = setTimeout(() => {
+      this.users[userId].typing = false;
+    }, 3000);
+  }
+}
+
+customElements.define("user-list", UserList);

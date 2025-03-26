@@ -102,6 +102,46 @@ async function logout() {
   });
 }
 
+async function startWS() {
+  const USER_LIST = document.querySelector("user-list");
+
+  // Check if the browser supports websockets
+  if (window["WebSocket"]) {
+    socket = new WebSocket(`ws://${document.location.host}/ws`);
+    socket.onmessage = async function (event) {
+      newMsg = JSON.parse(event.data);
+
+      if (newMsg.msg_type == "msg") {
+        // If the user is on the chat page, add the message to the chat
+        if (chat) {
+          chat.receiveMessage(newMsg);
+        }
+        // Otherwise, add a notification glow to the user
+        else {
+          USER_LIST.addNotification(newMsg.sender_id);
+        }
+      } else if (newMsg.msg_type == "online") {
+        // Update the online status if the user list is loaded
+        if (Object.keys(USER_LIST.users).length > 0) {
+          USER_LIST.updateOnlineStatus(newMsg.user_ids);
+        } else {
+          // Otherwise, wait for the user list to load
+          setTimeout(() => {
+            USER_LIST.updateOnlineStatus(newMsg.user_ids);
+          }, 500);
+        }
+      } else if (newMsg.msg_type == "typing") {
+        // If the user is on the chat page, add the typing indicator
+        if (chat && chat.receiver.id === newMsg.sender_id) {
+          chat.addTypingIndicator();
+        } else {
+          USER_LIST.addTypingIndicator(newMsg.sender_id);
+        }
+      }
+    };
+  }
+}
+
 document.querySelector(".logo").addEventListener("click", () => {
   checkSession().then(() => {
     if (user) {
