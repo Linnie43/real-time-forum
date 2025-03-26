@@ -10,7 +10,6 @@ import (
 )
 
 func NewComment(path string, comment structs.Comment) error {
-	// Open the database
 	db, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		return err
@@ -20,8 +19,13 @@ func NewComment(path string, comment structs.Comment) error {
 
 	date := time.Now().Format("01-02-2006 15:04:05")
 
-	// Execute the insert statement
-	_, err = db.Exec(AddComment, comment.Post_id, comment.User_id, comment.Content, date)
+	// Insert the new comment into the database
+	_, err = db.Exec(
+		AddComment, 
+		comment.Post_id, 
+		comment.User_id, 
+		comment.Content, 
+		date)
 	if err != nil {
 		return err
 	}
@@ -29,7 +33,7 @@ func NewComment(path string, comment structs.Comment) error {
 	return nil
 }
 
-// Convert comment table query results to a slice of comment structs
+// Convert database rows to a slice of comment structs
 func ConvertRowToComment(rows *sql.Rows) ([]structs.Comment, error) {
 	var comments []structs.Comment
 
@@ -39,7 +43,12 @@ func ConvertRowToComment(rows *sql.Rows) ([]structs.Comment, error) {
 		var date string
 
 		// Scan the row into the comment struct
-		err := rows.Scan(&comment.Id, &comment.Post_id, &comment.User_id, &comment.Content, &date)
+		err := rows.Scan(
+			&comment.Id, 
+			&comment.Post_id, 
+			&comment.User_id, 
+			&comment.Content, 
+			&date)
 		if err != nil {
 			break
 		}
@@ -60,7 +69,6 @@ func ConvertRowToComment(rows *sql.Rows) ([]structs.Comment, error) {
 func FindCommentByParam(path, param, data string) ([]structs.Comment, error) {
 	var query *sql.Rows
 
-	// Open the database
 	db, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		return []structs.Comment{}, errors.New("failed to open database")

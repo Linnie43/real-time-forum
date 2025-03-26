@@ -27,7 +27,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Open the database connection
 	db, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		http.Error(w, "500 internal server error.", http.StatusInternalServerError)
@@ -63,7 +62,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Compare the password hash with the password
+	// Compare the password hash with the password that the user is trying to login with
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(login.Password)); err != nil {
 		http.Error(w, "401 unauthorized.", http.StatusUnauthorized)
 		return
@@ -90,11 +89,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		cookie = &http.Cookie{
 			Name:     "session",
 			Value:    sessionId.String(),
-			HttpOnly: true,
+			HttpOnly: true, // Prevents JavaScript from accessing the cookie
 			Path:     "/",
 			MaxAge:   60 * 60 * 24, // 1 day
-			SameSite: http.SameSiteNoneMode,
-			Secure:   true,
+			SameSite: http.SameSiteNoneMode, // Allow cross-site cookies
+			Secure:   true, // Only send the cookie over HTTPS
 		}
 		http.SetCookie(w, cookie)
 	}

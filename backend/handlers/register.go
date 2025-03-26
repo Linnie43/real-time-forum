@@ -11,7 +11,6 @@ import (
 )
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	// Prevent the endpoint from being accessed by other URL paths
 	if r.URL.Path != "/register" {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
@@ -42,7 +41,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	newUser.Password = passwordHash
 
-	// Attempt adding the new user to the database
+	// Add the new user to the database
 	err = database.NewUser("database.db", newUser)
 	if err != nil {
 		http.Error(w, "500 internal server error.", http.StatusInternalServerError)

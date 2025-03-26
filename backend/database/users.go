@@ -10,9 +10,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// Attempts adding a new user to the database, returning an error if it fails.
+// To add a new user to the database
 func NewUser(path string, user structs.User) error {
-	// Open the database
 	db, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		return err
@@ -20,7 +19,7 @@ func NewUser(path string, user structs.User) error {
 
 	defer db.Close()
 
-	// Execute the insert statement
+	// Insert new data
 	_, err = db.Exec(
 		AddUser, 
 		user.Username, 
@@ -37,11 +36,10 @@ func NewUser(path string, user structs.User) error {
 	return nil
 }
 
-// Gets user from the database based on the passed parameter (id, username, email)
+// Get user by parameter
 func GetUser(path string, parameter string, data string) (structs.User, error) {
 	var query *sql.Rows
 
-	// Open the database
 	db, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		return structs.User{}, errors.New("failed to open the database")
@@ -49,7 +47,7 @@ func GetUser(path string, parameter string, data string) (structs.User, error) {
 
 	defer db.Close()
 
-	// Check which parameter to search by
+	// Find user based on:
 	switch parameter {
 	case "id":
 		// Convert the data to an integer
@@ -58,19 +56,16 @@ func GetUser(path string, parameter string, data string) (structs.User, error) {
 			return structs.User{}, errors.New("ID must be an integer")
 		}
 
-		// Search for the user by id
 		query, err = db.Query(GetUserById, id)
 		if err != nil {
 			return structs.User{}, errors.New("could not find ID")
 		}
 	case "username":
-		// Search for the user by username
 		query, err = db.Query(GetUserByUsername, data)
 		if err != nil {
 			return structs.User{}, errors.New("could not find username")
 		}
 	case "email":
-		// Search for the user by email
 		query, err = db.Query(GetUserByEmail, data)
 		if err != nil {
 			return structs.User{}, errors.New("could not find email")
@@ -91,11 +86,10 @@ func GetUser(path string, parameter string, data string) (structs.User, error) {
 
 	return users[0], nil
 }
-
+// Convert the database row into a user struct
 func ConvertRowToUser(rows *sql.Rows) ([]structs.User, error) {
 	var users []structs.User
 
-	// Iterate through the rows
 	for rows.Next() {
 		var user structs.User
 
@@ -122,19 +116,18 @@ func ConvertRowToUser(rows *sql.Rows) ([]structs.User, error) {
 
 // Finds the currently logged in user from the cookie
 func CurrentUser(path, val string) (structs.User, error) {
-	//Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		return structs.User{}, err
 	}
 
 	defer db.Close()
-
+	// Query for user based on the cookie value
 	query, err := db.Query(GetSessionUser, val)
 	if err != nil {
 		return structs.User{}, err
 	}
-
+	// Convert the database row into a user struct
 	users, err := ConvertRowToUser(query)
 	if err != nil {
 		return structs.User{}, err
@@ -149,7 +142,6 @@ func CurrentUser(path, val string) (structs.User, error) {
 
 // Finds all users in the database
 func FindAllUsers(path string) ([]structs.User, error) {
-	// Open the database
 	db, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		return []structs.User{}, errors.New("failed to open the database")
@@ -157,7 +149,7 @@ func FindAllUsers(path string) ([]structs.User, error) {
 
 	defer db.Close()
 
-	// Find users
+	// Query all users from the database
 	rows, err := db.Query(GetAllUser)
 	if err != nil {
 		return []structs.User{}, errors.New("failed to find users")
@@ -176,7 +168,6 @@ func FindAllUsers(path string) ([]structs.User, error) {
 func FindUserByParam(path string, parameter string, data string) (structs.User, error) {
 	var query *sql.Rows
 
-	// Open the database
 	db, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		return structs.User{}, errors.New("failed to open the database")
@@ -184,7 +175,7 @@ func FindUserByParam(path string, parameter string, data string) (structs.User, 
 
 	defer db.Close()
 
-	// Check which parameter to search by
+	// Find user by:
 	switch parameter {
 	case "id":
 		// Convert the data to an integer
@@ -193,19 +184,16 @@ func FindUserByParam(path string, parameter string, data string) (structs.User, 
 			return structs.User{}, errors.New("ID must be an integer")
 		}
 
-		// Search for the user by id
 		query, err = db.Query(GetUserById, id)
 		if err != nil {
 			return structs.User{}, errors.New("could not find ID")
 		}
 	case "username":
-		// Search for the user by username
 		query, err = db.Query(GetUserByUsername, data)
 		if err != nil {
 			return structs.User{}, errors.New("could not find username")
 		}
 	case "email":
-		// Search for the user by email
 		query, err = db.Query(GetUserByEmail, data)
 		if err != nil {
 			return structs.User{}, errors.New("could not find email")

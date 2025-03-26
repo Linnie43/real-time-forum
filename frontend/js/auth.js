@@ -1,6 +1,7 @@
 class AuthenticationPage extends HTMLElement {
     constructor(type = "login") {
-      super();
+      // default contructor type to login
+      super(); // call the parent constructor, HTMLElement. This is required for all custom elements
       this.forms = {
         login: `
           <h1>Welcome</h1>
@@ -41,9 +42,12 @@ class AuthenticationPage extends HTMLElement {
         
         `,
       };
-      this.type = type;
+      this.type = type; // type is set to either login or register
     }
-  
+
+    // METHODS:
+
+    // generateUser is a method to generate a user object from the form data
     generateUser(formData) {
       if (this.type === "login") {
         return {
@@ -63,10 +67,10 @@ class AuthenticationPage extends HTMLElement {
         };
       }
     }
-  
+    // submitData is a method to submit the form data
     submitData() {
       const FORM = this.querySelector("#auth-form");
-      const FORM_DATA = new FormData(FORM);
+      const FORM_DATA = new FormData(FORM); // create a new FormData object from the form
   
       const USER = this.generateUser(FORM_DATA);
   
