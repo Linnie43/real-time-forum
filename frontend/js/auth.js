@@ -1,0 +1,143 @@
+class AuthenticationPage extends HTMLElement {
+    constructor(type = "login") {
+      super();
+      this.forms = {
+        login: `
+          <h1>Welcome</h1>
+          <form id="auth-form" action="/login" method="post">
+          <label for="username">Username or Email</label>
+          <input type="text" class="input" id="username-input" name="username" />
+          <br />
+          <label for="password">Password</label>
+          <input type="password" class="input" id="password-input" name="password" />
+          <br />
+          <button class="btn" id="submit-btn" type="submit">SIGN IN</button>
+        `,
+        register: `
+        <h1>Sign Up</h1>
+        <form id="auth-form" action="/register" method="post">
+          <label for="first-name">First name </label>
+          <input type="text" name="firstname" id="first-name-input" required pattern="\\w{1,16}">
+          <label for="last-name">Last name </label>
+          <input type="text" name="lastname" id="last-name-input" required pattern="\\w{2,16}">
+          <label for="email">Email </label>
+          <input type="email" name="email" id="email" required>
+          <label for="username">Username</label>
+          <input type="text" class="input" id="username-input" name="username" required/>
+          <label for="password">Password</label>
+          <input type="password" class="input" id="password-input" name="password" required/>
+          <label for="gender">Gender</label>
+          <select id="gender-input" name="gender" required>
+            <option value="">Select...</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+          <label for="birthdate">Date of Birth</label>
+          <input type="date" class="input" id="birthdate-input" name="birthdate" required/>
+          <br />
+          <button class="btn" id="submit-btn" type="submit">SIGN UP</button>
+        </form>
+        
+        `,
+      };
+      this.type = type;
+    }
+  
+    generateUser(formData) {
+      if (this.type === "login") {
+        return {
+          username: formData.get("username"),
+          password: formData.get("password"),
+        };
+      } else {
+        return {
+          id: 0,
+          username: formData.get("username"),
+          email: formData.get("email"),
+          firstname: formData.get("firstname"),
+          lastname: formData.get("lastname"),
+          gender: formData.get("gender"),
+          dob: formData.get("birthdate"),
+          password: formData.get("password"),
+        };
+      }
+    }
+  
+    submitData() {
+      const FORM = this.querySelector("#auth-form");
+      const FORM_DATA = new FormData(FORM);
+  
+      const USER = this.generateUser(FORM_DATA);
+  
+      if (this.type === "login") {
+        login(USER);
+      } else {
+        register(USER);
+      }
+    }
+  
+    displayForm() {
+      this.innerHTML = this.forms[this._type];
+      this.querySelector("#auth-form").onsubmit = (event) => {
+        event.preventDefault();
+        this.submitData();
+      };
+    }
+  
+    get type() {
+      return this._type;
+    }
+  
+    set type(type) {
+      if (type !== "login" && type !== "register") {
+        throw new Error("Invalid type");
+      }
+  
+      this._type = type;
+      this.displayForm();
+    }
+  }
+  
+  customElements.define("auth-page", AuthenticationPage);
+  
+  class AuthenticationButton extends HTMLButtonElement {
+    constructor() {
+      super();
+      this.innerHTML = "SIGN UP";
+      this.classList.add("btn");
+      this.id = "auth-btn";
+    }
+  
+    connectedCallback() {
+      this.update();
+    }
+  
+    update() {
+      if (page instanceof AuthenticationPage) {
+        this.formBehavior();
+      } else {
+        this.logoutBehavior();
+      }
+    }
+  
+    formBehavior() {
+      this.innerText = "SIGN UP";
+      this.onclick = () => {
+        const AUTH_PAGE = document.querySelector("auth-page");
+        const TYPE = AUTH_PAGE.type === "login" ? "register" : "login";
+        AUTH_PAGE.type = TYPE;
+        this.innerText = TYPE === "login" ? "SIGN UP" : "SIGN IN";
+      };
+    }
+  
+    logoutBehavior() {
+      this.innerText = "SIGN OUT";
+      this.onclick = () => {
+        logout();
+      };
+    }
+  }
+  
+  customElements.define("auth-btn", AuthenticationButton, { extends: "button" });
+  

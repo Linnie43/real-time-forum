@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	_ "github.com/mattn/go-sqlite3" // SQLite3 driver; the blank import ensures the driver is included "_" is important!!!
+	_ "github.com/mattn/go-sqlite3" // SQLite3 driver
 )
 
 // InitDB initializes the SQLite database and returns a database connection object
@@ -13,9 +13,7 @@ func InitDB() *sql.DB {
 	if err != nil {
 		log.Println("Failed to initialize the database")
 		log.Fatal(err)
-
 	}
-	defer db.Close()
 
 	_, err = db.Exec(CreateTables)
 	if err != nil {

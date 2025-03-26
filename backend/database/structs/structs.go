@@ -1,36 +1,45 @@
 package structs
 
-type CommentDetails struct {
-	CommentID   int    `json:"comment_id"`
-	PostID      int    `json:"post_id"`
-	Content     string `json:"comment_content"`
-	UserID      int    `json:"user_id"`
-	Username    string `json:"username"`
-	CreatedAt   string `json:"created_at"`
+import "time"
+
+type Login struct {
+	Entry    string `json:"username"`
+	Password string `json:"password"`
 }
 
-type PostDetails struct {
-	PostID      int              `json:"post_id"`
-	UserID      int              `json:"user_id"`
-	Username    string           `json:"username"`
-	PostTitle   string           `json:"post_title"`
-	PostContent string           `json:"post_content"`
-	Comments    []CommentDetails `json:"comments"`
-	Categories  []string         `json:"categories"`
-	CreatedAt   string           `json:"created_at"`
+type Comment struct {
+	Id      int       `json:"id"`
+	Post_id int       `json:"post_id"`
+	User_id int       `json:"user_id"`
+	Content string    `json:"content"`
+	Date    time.Time `json:"date"`
 }
 
-type PageDetails struct {
-	LoggedIn         bool
-	Username         string
-	Categories       []CategoryDetails
-	Posts            []PostDetails
-	SelectedCategory string
-	SelectedFilter   string
-	ValidationError  string
+type Message struct {
+	Id          int    `json:"id"`
+	Sender_id   int    `json:"sender_id"`
+	Receiver_id int    `json:"receiver_id"`
+	Content     string `json:"content"`
+	Date        string `json:"date"`
+	Msg_type    string `json:"msg_type"`
 }
 
-type CategoryDetails struct {
-	CategoryID   int
-	CategoryName string
+type Post struct {
+	Id       int       `json:"id"`
+	User_id  int       `json:"user_id"`
+	Category string    `json:"category"`
+	Title    string    `json:"title"`
+	Content  string    `json:"content"`
+	Date     time.Time `json:"date"`
+}
+
+type User struct {
+	Id        int    `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
+	Gender    string `json:"gender"`
+	DOB       string `json:"dob"`
+	Password  string `json:"password"`
 }
