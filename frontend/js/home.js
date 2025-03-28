@@ -37,23 +37,24 @@ class PostBoard extends HTMLElement {
 
   async renderPosts() {
     this.innerHTML = `
-        <h2>Create Post</h2>
-        <post-form></post-form>
-        <h2>Posts</h2>
-        <div class="post-categories">
-            <input type="radio" name="category" id="all" value="all" checked />
-            <label for="all">All</label>
-            <input type="radio" name="category" id="productivity" value="productivity" />
-            <label for="productivity">Productivity</label>
-            <input type="radio" name="category" id="programming" value="programming" />
-            <label for="programming">Programming</label>
-            <input type="radio" name="category" id="gaming" value="gaming" />
-            <label for="gaming">Gaming</label>
-            <input type="radio" name="category" id="lifestyle" value="lifestyle" />
-            <label for="lifestyle">Lifestyle</label>
-        </div>
-        <div class="post-container">
-        </div>
+    <div class="posts-section">
+      <h2>Create Post</h2>
+      <post-form></post-form>
+      <h2>Posts</h2>
+      <div class="post-categories">
+          <input type="radio" name="category" id="all" value="all" checked />
+          <label for="all">All</label>
+          <input type="radio" name="category" id="productivity" value="productivity" />
+          <label for="productivity">Productivity</label>
+          <input type="radio" name="category" id="programming" value="programming" />
+          <label for="programming">Programming</label>
+          <input type="radio" name="category" id="gaming" value="gaming" />
+          <label for="gaming">Gaming</label>
+          <input type="radio" name="category" id="lifestyle" value="lifestyle" />
+          <label for="lifestyle">Lifestyle</label>
+      </div>
+      <div class="post-container">
+      </div>
     `;
     document.querySelector(".post-categories").onchange = (event) => {
       const POSTS = document.querySelectorAll("post-element");
@@ -211,6 +212,7 @@ class ChatWindow extends HTMLElement {
       <div class="chat-footer">
         <textarea id="chat-input" rows="1"></textarea>
         <button id="chat-send">Send</button>
+      </div>
       </div>
     `;
   }
@@ -402,11 +404,15 @@ class UserList extends HTMLElement {
 
   async render() {
     this.innerHTML = `
+    <div class="chat-sidebar">
+    <div class="user-container">
       <h3>Users</h3>
       <ul id="latest-list">
       </ul>
       <ul id="user-list">
       </ul>
+    </div>
+    </div>
     `;
 
     this.users = await this.getUsers();
