@@ -17,7 +17,12 @@ func NewMessage(path string, message structs.Message) error {
 	defer db.Close()
 
 	//Executes the insert statement
-	_, err = db.Exec(AddMessage, message.Sender_id, message.Receiver_id, message.Content, message.Date)
+	_, err = db.Exec(
+		AddMessage, 
+		message.Sender_id, 
+		message.Receiver_id, 
+		message.Content, 
+		message.Date)
 	if err != nil {
 		return err
 	}
@@ -39,7 +44,12 @@ func ConvertRowToMessage(rows *sql.Rows) ([]structs.Message, error) {
 		var m structs.Message
 
 		//Stores the row data in a temporary message struct
-		err := rows.Scan(&m.Id, &m.Sender_id, &m.Receiver_id, &m.Content, &m.Date)
+		err := rows.Scan(
+			&m.Id, 
+			&m.Sender_id, 
+			&m.Receiver_id, 
+			&m.Content, 
+			&m.Date)
 		if err != nil {
 			break
 		}

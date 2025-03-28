@@ -30,7 +30,7 @@ const (
 var newline = []byte{'\n'} // Used to format the message in the websocket
 
 
-var upgrader = websocket.Upgrader{
+var upgrader = websocket.Upgrader{ // Sets how much data can be sent at once and read, buffers
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }

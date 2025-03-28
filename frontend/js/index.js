@@ -1,4 +1,4 @@
-// Initialize dynamic, cross-referenced elements
+// Global variables
 const AUTH_BUTTON = new AuthenticationButton();
 const USERNAME_ELEMENT = document.createElement("span");
 USERNAME_ELEMENT.classList.add("username");
