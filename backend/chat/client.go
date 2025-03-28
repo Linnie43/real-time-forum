@@ -26,9 +26,9 @@ const (
 	maxMessageSize = 512
 )
 
-var (
-	newline = []byte{'\n'}
-)
+
+var newline = []byte{'\n'} // Used to format the message in the websocket
+
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,

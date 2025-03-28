@@ -8,7 +8,6 @@ import (
 	"real-time-forum/backend/database/structs"
 )
 
-// Attempts to insert a new message into the database
 func NewMessage(path string, message structs.Message) error {
 	db, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
@@ -48,11 +47,6 @@ func ConvertRowToMessage(rows *sql.Rows) ([]structs.Message, error) {
 		//Appends the temporary struct to the array
 		messages = append(messages, m)
 	}
-
-	//Returns an error if no rows are provided
-	// if len(messages) == 0 {
-	// 	return []models.Message{}, errors.New("no row provided")
-	// }
 
 	return messages, nil
 }
