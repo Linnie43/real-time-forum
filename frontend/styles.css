@@ -307,6 +307,32 @@ user-element {
     transition: background-color 0.2s;
 }
 
+user-list h3 {
+    text-align: center;
+    color: #5C7164;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+user-element:hover {
+    background-color: #f0f0f0;
+}
+
+user-element[online] {
+    border-left: 5px solid #5C7164;
+}
+
+user-element[notification] {
+    background-color: #ffefc1;
+}
+
+user-element[typing]::after {
+    content: " (typing...)";
+    font-style: italic;
+    color: #888;
+}
+
+
 /* Footer */
 footer {
     background-color: #5C7164;
