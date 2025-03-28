@@ -89,17 +89,17 @@ class AuthenticationPage extends HTMLElement {
       };
     }
   
-    get type() {
+    get type() { // get type of the form
       return this._type;
     }
   
-    set type(type) {
+    set type(type) { // set type of the form
       if (type !== "login" && type !== "register") {
         throw new Error("Invalid type");
       }
   
       this._type = type;
-      this.displayForm();
+      this.displayForm(); // display the form with the new type
     }
   }
   
@@ -119,9 +119,9 @@ class AuthenticationPage extends HTMLElement {
   
     update() {
       if (page instanceof AuthenticationPage) {
-        this.formBehavior();
+        this.formBehavior(); // if page is an instance of AuthenticationPage, call formBehavior
       } else {
-        this.logoutBehavior();
+        this.logoutBehavior(); // else call logoutBehavior
       }
     }
   
