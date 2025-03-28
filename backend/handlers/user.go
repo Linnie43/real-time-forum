@@ -14,9 +14,10 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check whether an id is passed in the URL (GET /user?id=)
+	// Get id from the URL
 	id := r.URL.Query().Get("id")
-	if id == "" {
+	if id == "" { 
+		// if no id is passed, return all users
 		users, err := database.FindAllUsers("database.db")
 		if err != nil {
 			http.Error(w, "500 internal server error.", http.StatusInternalServerError)
@@ -33,6 +34,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write(resp)
 	} else {
+		// Find the user by the passed id
 		user, err := database.FindUserByParam("database.db", "id", id)
 		if err != nil {
 			http.Error(w, "500 internal server error.", http.StatusInternalServerError)

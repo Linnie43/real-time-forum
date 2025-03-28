@@ -8,7 +8,6 @@ import (
 )
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	// Prevent the endpoint from being accessed by other URL paths
 	if r.URL.Path != "/logout" {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
@@ -20,7 +19,6 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Open the database connection
 	db, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		http.Error(w, "500 internal server error.", http.StatusInternalServerError)
@@ -43,8 +41,8 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete the session cookie from the client
-	cookie.MaxAge = -1
-	http.SetCookie(w, cookie)
+	cookie.MaxAge = -1 // a cookie MaxAge less than 0 deletes the cookie 
+	http.SetCookie(w, cookie) // set the cookie on the client
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Successfully logged out."))

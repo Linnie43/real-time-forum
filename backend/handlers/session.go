@@ -9,7 +9,6 @@ import (
 )
 
 func SessionHandler(w http.ResponseWriter, r *http.Request) {
-	// Prevent the endpoint from being accessed by other URL paths
 	if r.URL.Path != "/session" {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
@@ -21,21 +20,21 @@ func SessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if user has a session cookie
+	// Check for the session cookie
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		http.Error(w, "401 unauthorized.", http.StatusUnauthorized)
 		return
 	}
 
-	// Store the user data
+	// Store user data
 	var user structs.User
 
-	// Attempt getting the user from the session cookie
+	// Get user from the database by session cookie
 	user, err = database.CurrentUser("database.db", cookie.Value)
 	if err != nil {
-		cookie.MaxAge = -1
-		http.SetCookie(w, cookie)
+		cookie.MaxAge = -1 // time out the cookie
+		http.SetCookie(w, cookie) // return the cookie to the client
 		http.Error(w, "400 bad request.", http.StatusBadRequest)
 		return
 	}

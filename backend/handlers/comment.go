@@ -9,10 +9,10 @@ import (
 )
 
 func CommentHandler(w http.ResponseWriter, r *http.Request) {
-	// Check whether the request is a GET or POST
+	// Check for method used
 	switch r.Method {
 	case "GET":
-		// Check for a passed search parameter and data
+		// Check for a passed search parameter and data from the URL
 		param := r.URL.Query().Get("param")
 		data := r.URL.Query().Get("data")
 		if param == "" || data == "" {

@@ -43,3 +43,14 @@ type User struct {
 	DOB       string `json:"dob"`
 	Password  string `json:"password"`
 }
+
+type Chat struct {
+	User_one int
+	User_two int
+	Time     int
+}
+
+type OnlineUsers struct {
+	UserIds  []int  `json:"user_ids"`
+	Msg_type string `json:"msg_type"`
+}

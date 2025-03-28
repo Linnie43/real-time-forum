@@ -9,13 +9,12 @@ import (
 )
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
-	// Prevent the endpoint from being accessed by other URL paths
 	if r.URL.Path != "/post" {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
 	}
 
-	// Behavior depends on the request method
+	// Check for method
 	switch r.Method {
 	case "GET":
 		var posts []structs.Post
@@ -60,13 +59,13 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		var newPost structs.Post
 
 		// Decode the request body into the post struct
-		// Return a 400 bad request if there's an error
 		err := json.NewDecoder(r.Body).Decode(&newPost)
 		if err != nil {
 			http.Error(w, "400 bad request.", http.StatusBadRequest)
 			return
 		}
 
+		// Check for a session cookie
 		cookie, err := r.Cookie("session")
 		if err != nil {
 			http.Error(w, "401 unauthorized.", http.StatusUnauthorized)
@@ -79,7 +78,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Attempt adding the post to the database
+		// Add the new post to the database
 		err = database.NewPost("database.db", newPost, user)
 		if err != nil {
 			http.Error(w, "500 internal server error.", http.StatusInternalServerError)
