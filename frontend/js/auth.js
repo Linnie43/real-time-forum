@@ -7,10 +7,10 @@ class AuthenticationPage extends HTMLElement {
           <h1>Welcome</h1>
           <form id="auth-form" action="/login" method="post">
           <label for="username">Username or Email</label>
-          <input type="text" class="input" id="username-input" name="username" />
+          <input type="text" class="input" id="username-input" name="username" required/>
           <br />
           <label for="password">Password</label>
-          <input type="password" class="input" id="password-input" name="password" />
+          <input type="password" class="input" id="password-input" name="password" required minlength="6" maxlength="12"//>
           <br />
           <button class="btn" id="submit-btn" type="submit">SIGN IN</button>
         `,
@@ -26,7 +26,7 @@ class AuthenticationPage extends HTMLElement {
           <label for="username">Username</label>
           <input type="text" class="input" id="username-input" name="username" required/>
           <label for="password">Password</label>
-          <input type="password" class="input" id="password-input" name="password" required/>
+          <input type="password" class="input" id="password-input" name="password" required minlength="6" maxlength="12"/>
           <label for="gender">Gender</label>
           <select id="gender-input" name="gender" required>
             <option value="">Select...</option>
@@ -35,11 +35,10 @@ class AuthenticationPage extends HTMLElement {
             <option value="other">Other</option>
           </select>
           <label for="birthdate">Date of Birth</label>
-          <input type="date" class="input" id="birthdate-input" name="birthdate" required/>
+          <input type="date" class="input" id="birthdate-input" name="birthdate" required max="${new Date().toISOString().split('T')[0]}"/>
           <br />
           <button class="btn" id="submit-btn" type="submit">SIGN UP</button>
         </form>
-        
         `,
       };
       this.type = type; // type is set to either login or register
@@ -124,7 +123,7 @@ class AuthenticationPage extends HTMLElement {
         this.logoutBehavior(); // else call logoutBehavior
       }
     }
-  
+    // Toggle between login and register forms on button click
     formBehavior() {
       this.innerText = "SIGN UP";
       this.onclick = () => {

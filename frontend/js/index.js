@@ -91,7 +91,7 @@ async function register(user) {
 
 async function logout() {
   if (socket) {
-    socket.close();
+    socket.close(1000, "User logged out");
     socket = null;
   }
   USERNAME_ELEMENT.innerHTML = "";

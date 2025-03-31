@@ -22,13 +22,11 @@ const (
 	// Send pings to peer with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
 
-	// Maximum message size allowed from peer.
+	// Maximum message size allowed from peer. (byte size)
 	maxMessageSize = 512
 )
 
-
 var newline = []byte{'\n'} // Used to format the message in the websocket
-
 
 var upgrader = websocket.Upgrader{ // Sets how much data can be sent at once and read, buffers
 	ReadBufferSize:  1024,
@@ -65,7 +63,7 @@ func (c *Client) readPump() {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
+				log.Printf("%v", err)
 			}
 			break
 		}
