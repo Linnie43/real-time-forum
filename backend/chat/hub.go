@@ -106,6 +106,7 @@ func (h *Hub) Run() {
 			}
 
 			if msg.Msg_type == "msg" {
+				// Handle regular messages
 				for _, client := range h.clients {
 					if client.userID == msg.Receiver_id {
 						select {
@@ -116,7 +117,20 @@ func (h *Hub) Run() {
 						}
 					}
 				}
+			} else if msg.Msg_type == "typing" {
+				// Handle typing indicator
+				for _, client := range h.clients {
+					if client.userID == msg.Receiver_id { // Only send to the intended recipient
+						select {
+						case client.send <- sendMsg:
+						default:
+							close(client.send)
+							delete(h.clients, client.userID)
+						}
+					}
+				}
 			} else {
+				// Handle other message types (if any)
 				for _, client := range h.clients {
 					if client.userID != msg.Sender_id {
 						select {
