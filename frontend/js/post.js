@@ -14,7 +14,7 @@ class Post extends HTMLElement {
       <div class="post-header">
         ${
           this.postData.title === undefined
-            ? "<h5>Comment</h5>"
+            ? ""
             : `<h3>${this.postData.title}</h3>`
         }
         <p>${await getData("/user?id=" + this.postData.user_id).then(
@@ -34,19 +34,24 @@ class Post extends HTMLElement {
     const COMMENTS_DATA = await getData(
       "/comment?param=post_id&data=" + this.postData.id
     );
-    const COMMENTS = [];
-
-    if (COMMENTS_DATA === null) {
-      return COMMENTS;
+  
+    // If there are no comments, return null
+    if (!COMMENTS_DATA || COMMENTS_DATA.length === 0) {
+      return null;
     }
 
+    // Create a container for the comments
+    const COMMENTS_CONTAINER = document.createElement("div");
+    COMMENTS_CONTAINER.classList.add("comments-container");
+  
     COMMENTS_DATA.forEach((commentData) => {
       const COMMENT = new Post(commentData);
+      COMMENT.classList.remove("post");
       COMMENT.classList.add("post-full", "comment");
-      COMMENTS.push(COMMENT);
+      COMMENTS_CONTAINER.appendChild(COMMENT); // Append each comment to the container
     });
-
-    return COMMENTS;
+  
+    return COMMENTS_CONTAINER; // Return the container with all comments
   }
 }
 

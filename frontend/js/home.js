@@ -84,15 +84,35 @@ class PostBoard extends HTMLElement {
   }
 
   async renderPost(postData) {
-    this.innerHTML = ``;
+    this.innerHTML = `
+      <div class="posts-section-post">
+        <div class="post-full"></div>
+        <div class="comments-wrapper">
+          <h4>Comments</h4>
+        </div>
+      </div>
+    `;
+  
+    const postContainer = this.querySelector(".post-full");
+    const commentsWrapper = this.querySelector(".comments-wrapper");
+  
+    // Add the full post
     const POST_PAGE = new Post(postData);
-    POST_PAGE.classList.add("post-full");
-    this.appendChild(POST_PAGE);
-
-    (await POST_PAGE.getComments()).forEach((comment) => {
-      this.appendChild(comment);
-    });
-    this.appendChild(new PostForm("comment"));
+    postContainer.appendChild(POST_PAGE);
+  
+    // Add the comments if they exist
+    const COMMENTS_CONTAINER = await POST_PAGE.getComments();
+    if (COMMENTS_CONTAINER) {
+      commentsWrapper.appendChild(COMMENTS_CONTAINER);
+    } else {
+      // Optionally hide the comments-wrapper if there are no comments
+      commentsWrapper.style.display = "none";
+    }
+  
+    // Add a form for new comments
+    const postForm = new PostForm("comment");
+    commentsWrapper.style.display = "block"; // Ensure the wrapper is visible for the form
+    commentsWrapper.appendChild(postForm);
   }
 }
 
@@ -206,6 +226,7 @@ class ChatWindow extends HTMLElement {
         <button id="close-chat">✖</button>
       </div>
       <div class="chat-body">
+      <ul id ="user-list">
         <ul id="chat-list">
         </ul>
       </div>
@@ -405,10 +426,9 @@ class UserList extends HTMLElement {
   async render() {
     this.innerHTML = `
     <div class="chat-sidebar">
-    <div class="user-container">
       <h3>Users</h3>
+      <div class="user-container">
       <ul id="latest-list">
-      </ul>
       <ul id="user-list">
       </ul>
     </div>
