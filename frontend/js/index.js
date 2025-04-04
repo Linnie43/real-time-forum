@@ -134,8 +134,6 @@ async function startWS() {
         // If the user is on the chat page, add the typing indicator
         if (chat && chat.receiver.id === newMsg.sender_id) {
           chat.addTypingIndicator();
-        } else {
-          USER_LIST.addTypingIndicator(newMsg.sender_id);
         }
       }
     };

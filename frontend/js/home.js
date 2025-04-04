@@ -42,6 +42,7 @@ class PostBoard extends HTMLElement {
       <post-form></post-form>
       <h2>Posts</h2>
       <div class="post-categories">
+        <span>Filter:</span>
           <input type="radio" name="category" id="all" value="all" checked />
           <label for="all">All</label>
           <input type="radio" name="category" id="productivity" value="productivity" />
@@ -331,7 +332,7 @@ class ChatWindow extends HTMLElement {
     this.typingTimer = setTimeout(() => {
       TYPING_MESSAGE.remove();
       TYPING_MESSAGE = null;
-    }, 3000);
+    }, 2000);
 
     // If the user is scrolled to the bottom above the typing message, scroll to the bottom again
     if (

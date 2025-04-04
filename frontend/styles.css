@@ -1,10 +1,24 @@
 /* Import fonts */
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
 @import url('https://fonts.googleapis.com/css2?family=Limelight&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap');
+
+@keyframes notification-bounce {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
 
 /* General body styling */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Onest', Arial, sans-serif;
     background: #FDEDDC;
     margin: 0;
     padding: 0;
@@ -79,6 +93,24 @@ home-page {
     align-self: center;
     flex-direction: column;
     width: clamp(300px, 100%, 800px);
+}
+
+h1 {
+    font-family: 'Limelight', Helvetica, sans-serif;
+    color: #bf5765;
+}
+
+h2 {
+    font-family: 'Limelight', Helvetica, sans-serif;
+    font-size: 34px;
+    color: #bf5765;
+    margin: 16px 0;
+}
+
+h4 {
+    font-family: 'Limelight', Helvetica, sans-serif;
+    font-size: 20px;
+    color: #bf5765;
 }
 
 /* Post Element */
@@ -268,7 +300,6 @@ chat-window .chat-footer button:hover {
 .chat-message {
     display: flex;
     flex-direction: column;
-    padding: 4px;
     border: solid 1px #ddd;
     border-radius: 5px; 
     padding: 6px 4px;
@@ -298,6 +329,8 @@ chat-window .chat-footer button:hover {
 .typing {
     font-style: italic;
     color: #888;
+    border: none;
+    border-radius: 0; 
 }
 
 /* User List */
@@ -328,8 +361,7 @@ user-element {
     border-radius: 5px;
     background-color: #fff;
     cursor: pointer;
-    transition: background-color 0.2s;
-    
+    transition: background-color 0.2s ease;
 }
 
 user-list h3 {
@@ -349,6 +381,7 @@ user-element[online] {
 
 user-element[notification] {
     background-color: #ffefc1;
+    animation: notification-bounce 0.5s ease-in-out;
 }
 
 user-element[typing]::after {
@@ -455,4 +488,9 @@ post-element.comment .post-footer {
     border-radius: 5px;
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.post-categories span {
+    font-size: 18px;
+    color: #5C7164;
 }
