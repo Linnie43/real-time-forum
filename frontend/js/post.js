@@ -79,13 +79,14 @@ class PostForm extends HTMLElement {
         ${
           this.type === "post"
             ? `
-        <select class="category-dropdown" name="category" default="All">
-          <option value="all">All</option>
-          <option value="productivity">Productivity</option>
-          <option value="programming">Programming</option>
-          <option value="gaming">Gaming</option>
-          <option value="lifestyle">Lifestyle</option>
-        </select>`
+            <select class="category-dropdown" name="category" required>
+              <option value="" disabled selected>-</option>
+              <option value="productivity">Productivity</option>
+              <option value=feedback">Feedback</option>
+              <option value="help">Help</option>
+              <option value="resources">Resources</option>
+              <option value="fun">Fun</option>
+            </select>`
             : ""
         }
         <button class="btn" type="submit">${

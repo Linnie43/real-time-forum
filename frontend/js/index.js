@@ -134,8 +134,6 @@ async function startWS() {
         // If the user is on the chat page, add the typing indicator
         if (chat && chat.receiver.id === newMsg.sender_id) {
           chat.addTypingIndicator();
-        } else {
-          USER_LIST.addTypingIndicator(newMsg.sender_id);
         }
       }
     };
@@ -146,7 +144,7 @@ document.querySelector(".logo").addEventListener("click", () => {
   checkSession().then(() => {
     if (user) {
       localStorage.removeItem("post");
-      document.querySelector(".logo").innerHTML = "FORUM";
+      document.querySelector(".logo").innerHTML = "STUDY HALL";
       document.querySelector("post-board").render();
     }
   });

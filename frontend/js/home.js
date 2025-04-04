@@ -46,12 +46,14 @@ class PostBoard extends HTMLElement {
           <label for="all">All</label>
           <input type="radio" name="category" id="productivity" value="productivity" />
           <label for="productivity">Productivity</label>
-          <input type="radio" name="category" id="programming" value="programming" />
-          <label for="programming">Programming</label>
-          <input type="radio" name="category" id="gaming" value="gaming" />
-          <label for="gaming">Gaming</label>
-          <input type="radio" name="category" id="lifestyle" value="lifestyle" />
-          <label for="lifestyle">Lifestyle</label>
+          <input type="radio" name="category" id="feedback" value="feedback" />
+          <label for="feedback">Feedback</label>
+          <input type="radio" name="category" id="help" value="help" />
+          <label for="help">Help</label>
+          <input type="radio" name="category" id="resources" value="resources" />
+          <label for="resources">Resources</label>
+          <input type="radio" name="category" id="fun" value="fun" />
+          <label for="fun">Fun</label>
       </div>
       <div class="post-container">
       </div>
