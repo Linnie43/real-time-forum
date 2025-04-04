@@ -75,7 +75,7 @@ class PostForm extends HTMLElement {
           ? '<input type="text" name="title" placeholder="Title" required />'
           : ""
       }
-        <textarea name="content" placeholder="Content" required></textarea>
+        <textarea name="content" placeholder="Content" required maxlength="800"></textarea>
         ${
           this.type === "post"
             ? `
