@@ -42,6 +42,7 @@ class PostBoard extends HTMLElement {
       <post-form></post-form>
       <h2>Posts</h2>
       <div class="post-categories">
+        <span>Filter:</span>
           <input type="radio" name="category" id="all" value="all" checked />
           <label for="all">All</label>
           <input type="radio" name="category" id="productivity" value="productivity" />
@@ -121,12 +122,20 @@ class PostBoard extends HTMLElement {
 customElements.define("post-board", PostBoard);
 
 class ChatMessage extends HTMLLIElement {
-  constructor(sender, content, time = null) {
+  constructor(sender, content, time = null, isSentByYou = false) {
     super();
     this.sender = sender;
     this.content = content;
     this.time = time === null ? null : new Date(time).toLocaleString();
+    this.isSentByYou = isSentByYou;
     this.classList.add("chat-message");
+
+    // Add a class based on whether the message is sent by you or received
+    if (isSentByYou) {
+      this.classList.add("sent");
+    } else {
+      this.classList.add("received");
+    }
   }
 
   async connectedCallback() {
@@ -134,12 +143,21 @@ class ChatMessage extends HTMLLIElement {
   }
 
   async render() {
-    this.innerHTML = `
+    if (this.isSentByYou) {
+      this.innerHTML = `
+      <span class="chat-username">${this.time === null ? "" : `<span class="chat-time">${this.time}</span>`}
+      ${this.sender.username}
+      </span>
+      <span class="chat-content">${this.content}</span>
+    `;
+    } else {
+      this.innerHTML = `
       <span class="chat-username">${this.sender.username}
       ${this.time === null ? "" : `<span class="chat-time">${this.time}</span>`}
       </span>
       <span class="chat-content">${this.content}</span>
     `;
+    }
   }
 }
 
@@ -253,7 +271,8 @@ class ChatWindow extends HTMLElement {
       const CHAT_MESSAGE = new ChatMessage(
         message.sender_id === user.id ? user : this.receiver,
         message.content,
-        message.date
+        message.date,
+        message.sender_id === user.id // Check if the message is sent by you
       );
       // Add the message on top of current messages
       CHAT_LIST.prepend(CHAT_MESSAGE);
@@ -278,20 +297,21 @@ class ChatWindow extends HTMLElement {
     RECEIVER_USER_ELEMENT.remove();
     document.querySelector("#latest-list").prepend(RECEIVER_USER_ELEMENT);
 
-    const CHAT_MESSAGE = new ChatMessage(user, CHAT_INPUT.value, new Date());
+ 
+    const CHAT_MESSAGE = new ChatMessage(user, CHAT_INPUT.value, new Date(), true); // Sent by you
     CHAT_LIST.appendChild(CHAT_MESSAGE);
     CHAT_BODY.scrollTop = CHAT_LIST.scrollHeight;
     CHAT_INPUT.value = "";
-
+  
     let msgData = {
       id: 0,
-      sender_id: 0,
+      sender_id: user.id,
       receiver_id: this.receiver.id,
       content: CHAT_MESSAGE.content,
       date: "",
       msg_type: "msg",
     };
-
+  
     socket.send(JSON.stringify(msgData));
   }
 
@@ -310,7 +330,8 @@ class ChatWindow extends HTMLElement {
     const CHAT_MESSAGE = new ChatMessage(
       message.sender_id === user.id ? user : this.receiver,
       message.content,
-      message.date
+      message.date,
+      message.sender_id === user.id // Check if the message is sent by you
     );
     CHAT_LIST.appendChild(CHAT_MESSAGE);
     this.typingTimer = clearTimeout(this.typingTimer);
@@ -342,15 +363,10 @@ class ChatWindow extends HTMLElement {
     this.typingTimer = setTimeout(() => {
       TYPING_MESSAGE.remove();
       TYPING_MESSAGE = null;
-    }, 3000);
+    }, 2000);
 
     // If the user is scrolled to the bottom above the typing message, scroll to the bottom again
-    if (
-      CHAT_BODY.scrollTop + CHAT_BODY.clientHeight >=
-      CHAT_BODY.scrollHeight - 50
-    ) {
-      CHAT_BODY.scrollTop = CHAT_LIST.scrollHeight;
-    }
+    CHAT_BODY.scrollTop = CHAT_BODY.scrollHeight;
   }
 }
 
