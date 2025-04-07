@@ -296,6 +296,15 @@ class ChatWindow extends HTMLElement {
   }
 
   async receiveMessage(message) {
+    // Check if this message belongs to the current conversation
+    // A message belongs to this conversation if:
+    // 1. The current user is the receiver and the sender is the chat partner, OR
+    // 2. The current user is the sender and the receiver is the chat partner
+    if (!((message.sender_id === this.receiver.id && message.receiver_id === user.id) || 
+          (message.sender_id === user.id && message.receiver_id === this.receiver.id))) {
+        return; // Skip messages not part of this conversation
+    }
+    
     const CHAT_BODY = this.querySelector(".chat-body");
     const CHAT_LIST = CHAT_BODY.querySelector("#chat-list");
     const CHAT_MESSAGE = new ChatMessage(

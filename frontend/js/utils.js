@@ -1,18 +1,16 @@
 //POST fetch function
 async function postData(url = "", data = {}) {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }).catch((error) => console.log(error));
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).catch((error) => console.log(error));
   
-    if (response.status !== 200) {
-      throw new Error("Invalid data");
-    }
-    return response;
-  }
+  // Return the response object instead of throwing an error
+  return response;
+}
   
   //GET fetch function
   async function getData(url = "") {

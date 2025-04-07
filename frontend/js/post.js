@@ -82,7 +82,7 @@ class PostForm extends HTMLElement {
             <select class="category-dropdown" name="category" required>
               <option value="" disabled selected>-</option>
               <option value="productivity">Productivity</option>
-              <option value=feedback">Feedback</option>
+              <option value="feedback">Feedback</option>
               <option value="help">Help</option>
               <option value="resources">Resources</option>
               <option value="fun">Fun</option>

@@ -70,11 +70,36 @@ async function login(user) {
     throw new Error("Invalid user");
   }
 
-  // Login the user using the user data
-  await postData("/login", user).then(() => {
-    // After logging in, assign current user to user and redirect to the home page
-    checkSession();
-  });
+  try {
+    // Make the login request
+    const response = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user)
+    });
+    
+    // Check if login was successful
+    if (response.ok) {
+      // After successful login, assign current user and redirect
+      checkSession();
+    } else {
+      // If login failed, display error message in the form
+      const errorMsg = "Username/email or password is incorrect.";
+      const errorDiv = document.querySelector("#error-message");
+      
+      // Show the error message and set its text
+      errorDiv.textContent = errorMsg;
+      errorDiv.classList.remove("hidden");
+    }
+  } catch (error) {
+    console.log("Login error:", error);
+    // Also show error message for network errors
+    const errorDiv = document.querySelector("#error-message");
+    errorDiv.textContent = "An error occurred. Please try again.";
+    errorDiv.classList.remove("hidden");
+  }
 }
 
 async function register(user) {
@@ -112,12 +137,18 @@ async function startWS() {
       newMsg = JSON.parse(event.data);
 
       if (newMsg.msg_type == "msg") {
-        // If the user is on the chat page, add the message to the chat
+        // Always process the message if there's an open chat window
         if (chat) {
           chat.receiveMessage(newMsg);
+          
+          // If this message is from someone other than the current chat partner,
+          // also show a notification for that user
+          if (newMsg.sender_id !== chat.receiver.id && newMsg.receiver_id === user.id) {
+            USER_LIST.addNotification(newMsg.sender_id);
+          }
         }
-        // Otherwise, add a notification glow to the user
-        else {
+        // No chat window open, just show notification
+        else if (newMsg.receiver_id === user.id) {
           USER_LIST.addNotification(newMsg.sender_id);
         }
       } else if (newMsg.msg_type == "online") {

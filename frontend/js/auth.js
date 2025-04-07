@@ -4,13 +4,14 @@ class AuthenticationPage extends HTMLElement {
       super(); // call the parent constructor, HTMLElement. This is required for all custom elements
       this.forms = {
         login: `
-          <h1>Welcome</h1>
-          <form id="auth-form" action="/login" method="post">
+        <h1>Welcome</h1>
+        <div id="error-message" class="error-message hidden"></div>
+        <form id="auth-form" action="/login" method="post">
           <label for="username">Username or Email</label>
           <input type="text" class="input" id="username-input" name="username" required/>
           <br />
           <label for="password">Password</label>
-          <input type="password" class="input" id="password-input" name="password" required minlength="6" maxlength="12"//>
+          <input type="password" class="input" id="password-input" name="password" required minlength="6" maxlength="12"/>
           <br />
           <button class="btn" id="submit-btn" type="submit">SIGN IN</button>
         `,
@@ -143,4 +144,3 @@ class AuthenticationPage extends HTMLElement {
   }
   
   customElements.define("auth-btn", AuthenticationButton, { extends: "button" });
-  
