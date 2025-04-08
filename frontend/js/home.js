@@ -168,6 +168,10 @@ class ChatWindow extends HTMLElement {
     super();
     this.receiver = receiver;
     this.typingTimer = null;
+    
+    // check if user is online
+    const userElement = document.querySelector(`user-element[user-id="${receiver.id}"]`);
+    this.receiverIsOnline = userElement ? userElement.hasAttribute("online") : false;
   }
 
   async connectedCallback() {
@@ -199,24 +203,26 @@ class ChatWindow extends HTMLElement {
 
     await this.loadMessages();
 
-    this.querySelector("#chat-input").oninput = () => {
-      if (!isTyping) {
-        isTyping = true;
+    if (this.receiverIsOnline) {
+      this.querySelector("#chat-input").oninput = () => {
+        if (!isTyping) {
+          isTyping = true;
 
-        let typingMsg = {
-          id: 0,
-          sender_id: user.id,
-          receiver_id: this.receiver.id,
-          msg_type: "typing",
-        };
+          let typingMsg = {
+            id: 0,
+            sender_id: user.id,
+            receiver_id: this.receiver.id,
+            msg_type: "typing",
+          };
 
-        socket.send(JSON.stringify(typingMsg));
+          socket.send(JSON.stringify(typingMsg));
 
-        setTimeout(() => {
-          isTyping = false;
-        }, 250);
-      }
-    };
+          setTimeout(() => {
+            isTyping = false;
+          }, 250);
+        }
+      };
+    }
 
     this.querySelector("#chat-input").focus();
 
@@ -226,11 +232,13 @@ class ChatWindow extends HTMLElement {
     };
 
     this.querySelector("#chat-send").onclick = () => {
-      this.sendMessage();
+      if (this.receiverIsOnline) {
+        this.sendMessage();
+      }
     };
 
     this.querySelector("#chat-input").onkeydown = (event) => {
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && this.receiverIsOnline) {
         event.preventDefault();
         this.sendMessage();
       }
@@ -251,8 +259,10 @@ class ChatWindow extends HTMLElement {
         </ul>
       </div>
       <div class="chat-footer">
-        <textarea id="chat-input" rows="1" maxlength="500"></textarea>
-        <button id="chat-send">SEND</button>
+        <textarea id="chat-input" rows="1" maxlength="500" 
+          placeholder="${this.receiverIsOnline ? '' : 'User offline'}"
+          ${this.receiverIsOnline ? '' : 'disabled'}></textarea>
+        <button id="chat-send" ${this.receiverIsOnline ? '' : 'disabled'}>SEND</button>
       </div>
       </div>
     `;
@@ -455,10 +465,11 @@ class UserList extends HTMLElement {
     <div class="chat-sidebar">
       <h3>Users</h3>
       <div class="user-container">
-      <ul id="latest-list">
-      <ul id="user-list">
-      </ul>
-    </div>
+        <ul id="latest-list">
+        </ul>
+        <ul id="user-list">
+        </ul>
+      </div>
     </div>
     `;
 
@@ -466,49 +477,94 @@ class UserList extends HTMLElement {
   }
 
   async getUsers() {
+    // Fetch all users
     const USERS = await getData("/user");
     const USER_OBJECTS = {};
-    USERS.forEach((user) => {
-      const USER_ELEMENT = new User(user);
-      this.querySelector("#user-list").appendChild(USER_ELEMENT);
-
-      // Store the user in the collection
-      USER_OBJECTS[user.id] = USER_ELEMENT;
+    
+    // Create user elements but don't add them to DOM yet
+    USERS.forEach(userData => {
+      const USER_ELEMENT = new User(userData);
+      USER_OBJECTS[userData.id] = USER_ELEMENT;
     });
+    
+    try {
+      // Get chat history to determine display order
+      // This returns the user IDs ordered by most recent chat
+      const chatHistory = await getData(`/chat?user_id=${user.id}`);
+      const usersWithHistory = chatHistory.user_ids || [];
+      
+      // Users with chat history (sorted by most recent message)
+      for (const userId of usersWithHistory) {
+        // Skip if it's the current user
+        if (userId === user.id) continue;
+        
+        // Add user to the latest-list (users with chat history)
+        if (USER_OBJECTS[userId]) {
+          this.querySelector("#latest-list").appendChild(USER_OBJECTS[userId]);
+        }
+      }
+      
+      // Create a list of users without chat history
+      const usersWithoutHistory = USERS.filter(userData => 
+        !usersWithHistory.includes(userData.id) && userData.id !== user.id
+      ).sort((a, b) => a.username.localeCompare(b.username));
+      
+      // Add users without chat history alphabetically
+      for (const userData of usersWithoutHistory) {
+        this.querySelector("#user-list").appendChild(USER_OBJECTS[userData.id]);
+      }
+    } catch (error) {
+      console.error("Error fetching chat history:", error);
+      
+      // Fallback: if chat history fails, display all users alphabetically
+      const sortedUsers = USERS
+        .filter(userData => userData.id !== user.id)
+        .sort((a, b) => a.username.localeCompare(b.username));
+      
+      sortedUsers.forEach(userData => {
+        this.querySelector("#user-list").appendChild(USER_OBJECTS[userData.id]);
+      });
+    }
+    
     return USER_OBJECTS;
   }
 
   async addNotification(userId) {
+    if (!this.users[userId]) return;
+    
     this.users[userId].notification = true;
+    
     // Add the user to the top of #latest-list
     this.users[userId].remove();
     this.users[userId].typing = false;
     this.querySelector("#latest-list").prepend(this.users[userId]);
   }
 
-  // Add new user to the list alphabetically
+  
   async addUser(user) {
     const USER_ELEMENT = new User(user);
+    USER_ELEMENT.online = true;
+    
+    // Add new users to the alphabetical section by default
     const USER_LIST = this.querySelector("#user-list");
     const USER_ELEMENTS = USER_LIST.querySelectorAll("user-element");
-
-    USER_ELEMENT.online = true;
-
-    // Find the correct index to insert the user
-    let index = 0;
+    
+    // Find the correct alphabetical position
+    let inserted = false;
     for (let i = 0; i < USER_ELEMENTS.length; i++) {
-      if (USER_ELEMENTS[i].user.username > user.username) {
-        index = i;
+      if (USER_ELEMENTS[i].user.username.localeCompare(user.username) > 0) {
+        USER_LIST.insertBefore(USER_ELEMENT, USER_ELEMENTS[i]);
+        inserted = true;
         break;
       }
     }
-
-    // Insert the user at the correct index
-    USER_LIST.insertBefore(USER_ELEMENT, USER_ELEMENTS[index]);
-
+    
+    if (!inserted) {
+      USER_LIST.appendChild(USER_ELEMENT);
+    }
+    
     // Store the user in the collection
     this.users[user.id] = USER_ELEMENT;
-
     return USER_ELEMENT;
   }
 
@@ -535,17 +591,19 @@ class UserList extends HTMLElement {
 
   async addTypingIndicator(userId) {
     // If the user is not already typing, set the typing attribute
-    if (this.users[userId].typing !== true) {
+    if (this.users[userId] && this.users[userId].typing !== true) {
       this.users[userId].typing = true;
     }
 
     // Clear any existing timeout
-    clearTimeout(this.users[userId].typingTimer);
+    if (this.users[userId]) {
+      clearTimeout(this.users[userId].typingTimer);
 
-    // Start a new timeout to remove the typing attribute after 3 seconds of inactivity
-    this.users[userId].typingTimer = setTimeout(() => {
-      this.users[userId].typing = false;
-    }, 3000);
+      // Start a new timeout to remove the typing attribute after 3 seconds of inactivity
+      this.users[userId].typingTimer = setTimeout(() => {
+        this.users[userId].typing = false;
+      }, 3000);
+    }
   }
 }
 
