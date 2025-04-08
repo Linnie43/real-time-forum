@@ -168,6 +168,10 @@ class ChatWindow extends HTMLElement {
     super();
     this.receiver = receiver;
     this.typingTimer = null;
+    
+    // check if user is online
+    const userElement = document.querySelector(`user-element[user-id="${receiver.id}"]`);
+    this.receiverIsOnline = userElement ? userElement.hasAttribute("online") : false;
   }
 
   async connectedCallback() {
@@ -199,24 +203,26 @@ class ChatWindow extends HTMLElement {
 
     await this.loadMessages();
 
-    this.querySelector("#chat-input").oninput = () => {
-      if (!isTyping) {
-        isTyping = true;
+    if (this.receiverIsOnline) {
+      this.querySelector("#chat-input").oninput = () => {
+        if (!isTyping) {
+          isTyping = true;
 
-        let typingMsg = {
-          id: 0,
-          sender_id: user.id,
-          receiver_id: this.receiver.id,
-          msg_type: "typing",
-        };
+          let typingMsg = {
+            id: 0,
+            sender_id: user.id,
+            receiver_id: this.receiver.id,
+            msg_type: "typing",
+          };
 
-        socket.send(JSON.stringify(typingMsg));
+          socket.send(JSON.stringify(typingMsg));
 
-        setTimeout(() => {
-          isTyping = false;
-        }, 250);
-      }
-    };
+          setTimeout(() => {
+            isTyping = false;
+          }, 250);
+        }
+      };
+    }
 
     this.querySelector("#chat-input").focus();
 
@@ -226,11 +232,13 @@ class ChatWindow extends HTMLElement {
     };
 
     this.querySelector("#chat-send").onclick = () => {
-      this.sendMessage();
+      if (this.receiverIsOnline) {
+        this.sendMessage();
+      }
     };
 
     this.querySelector("#chat-input").onkeydown = (event) => {
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && this.receiverIsOnline) {
         event.preventDefault();
         this.sendMessage();
       }
@@ -251,8 +259,10 @@ class ChatWindow extends HTMLElement {
         </ul>
       </div>
       <div class="chat-footer">
-        <textarea id="chat-input" rows="1" maxlength="500"></textarea>
-        <button id="chat-send">Send</button>
+        <textarea id="chat-input" rows="1" maxlength="500" 
+          placeholder="${this.receiverIsOnline ? '' : 'User offline'}"
+          ${this.receiverIsOnline ? '' : 'disabled'}></textarea>
+        <button id="chat-send" ${this.receiverIsOnline ? '' : 'disabled'}>Send</button>
       </div>
       </div>
     `;
