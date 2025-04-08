@@ -252,7 +252,7 @@ class ChatWindow extends HTMLElement {
       </div>
       <div class="chat-footer">
         <textarea id="chat-input" rows="1" maxlength="500"></textarea>
-        <button id="chat-send">Send</button>
+        <button id="chat-send">SEND</button>
       </div>
       </div>
     `;
