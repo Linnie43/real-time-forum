@@ -16,6 +16,7 @@ class AuthenticationPage extends HTMLElement {
         `,
         register: `
         <h1>Sign Up</h1>
+        <div id="error-message" class="error-message hidden"></div>
         <form id="auth-form" action="/register" method="post">
           <label for="first-name">First name </label>
           <input type="text" name="firstname" id="first-name-input" required pattern="\\w{1,16}">
