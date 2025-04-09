@@ -181,10 +181,14 @@ document.querySelector(".logo").addEventListener("click", () => {
   });
 });
 
+let reloadTimeout;
+
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelector(".nav-right").appendChild(USERNAME_ELEMENT);
-  document.querySelector(".nav-right").appendChild(AUTH_BUTTON);
-  // Check if the user is logged in
-  checkSession();
-  document.querySelector(".container").appendChild(page);
+  clearTimeout(reloadTimeout); // Clear any previous reload timeout
+  reloadTimeout = setTimeout(() => {
+    document.querySelector(".nav-right").appendChild(USERNAME_ELEMENT);
+    document.querySelector(".nav-right").appendChild(AUTH_BUTTON);
+    checkSession();
+    document.querySelector(".container").appendChild(page);
+  }, 100); // Debounce reloads by 100ms
 });

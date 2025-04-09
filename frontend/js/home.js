@@ -369,7 +369,7 @@ class ChatWindow extends HTMLElement {
       clearTimeout(this.typingTimer);
     }
 
-    // Set a new timer to remove the typing message after 3 seconds
+    // Set a new timer to remove the typing message after 2 seconds
     this.typingTimer = setTimeout(() => {
       TYPING_MESSAGE.remove();
       TYPING_MESSAGE = null;
@@ -477,7 +477,20 @@ class UserList extends HTMLElement {
 
   async getUsers() {
     const USERS = await getData("/user");
+    const CHATS = await getData(`/chat?user_id=${user.id}`); // Fetch chat history for the current user
     const USER_OBJECTS = {};
+
+    // Sort users by last message time or alphabetically if no chat history
+    USERS.sort((a, b) => {
+      const chatA = CHATS.user_ids.includes(a.id) ? CHATS.user_ids.indexOf(a.id) : Infinity;
+      const chatB = CHATS.user_ids.includes(b.id) ? CHATS.user_ids.indexOf(b.id) : Infinity;
+
+      if (chatA !== chatB) {
+        return chatA - chatB; // Sort by chat history
+      }
+      return a.username.localeCompare(b.username); // Fallback to alphabetical order
+    });
+
     USERS.forEach((user) => {
       const USER_ELEMENT = new User(user);
       this.querySelector("#user-list").appendChild(USER_ELEMENT);
