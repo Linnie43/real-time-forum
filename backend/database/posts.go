@@ -21,10 +21,10 @@ func NewPost(path string, post structs.Post, user structs.User) error {
 
 	// Insert the new post into the database
 	_, err = db.Exec(
-		AddPost, user.Id, 
-		post.Category, 
-		post.Title, 
-		post.Content, 
+		AddPost, user.Id,
+		post.Category,
+		post.Title,
+		post.Content,
 		date)
 	if err != nil {
 		return err
@@ -44,11 +44,11 @@ func ConvertRowToPost(rows *sql.Rows) ([]structs.Post, error) {
 
 		// Scan the query results into the post struct
 		err := rows.Scan(
-			&post.Id, 
-			&post.User_id, 
-			&post.Category, 
-			&post.Title, 
-			&post.Content, 
+			&post.Id,
+			&post.User_id,
+			&post.Category,
+			&post.Title,
+			&post.Content,
 			&date)
 		if err != nil {
 			break
@@ -63,8 +63,9 @@ func ConvertRowToPost(rows *sql.Rows) ([]structs.Post, error) {
 
 	}
 
+	// Return an empty slice with nil error when no posts are found instead of an error
 	if len(posts) == 0 {
-		return []structs.Post{}, sql.ErrNoRows
+		return []structs.Post{}, nil
 	}
 
 	return posts, nil

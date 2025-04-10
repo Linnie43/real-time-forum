@@ -58,7 +58,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Search for the user in the database
 	user, err := database.GetUser("database.db", param, login.Entry)
 	if err != nil {
-		http.Error(w, "500 internal server error.", http.StatusInternalServerError)
+		http.Error(w, "401 unauthorized.", http.StatusUnauthorized)
 		return
 	}
 
@@ -91,9 +91,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			Value:    sessionId.String(),
 			HttpOnly: true, // Prevents JavaScript from accessing the cookie
 			Path:     "/",
-			MaxAge:   60 * 60 * 24, // 1 day
+			MaxAge:   60 * 60 * 24,          // 1 day
 			SameSite: http.SameSiteNoneMode, // Allow cross-site cookies
-			Secure:   true, // Only send the cookie over HTTPS
+			Secure:   true,                  // Only send the cookie over HTTPS
 		}
 		http.SetCookie(w, cookie)
 	}
