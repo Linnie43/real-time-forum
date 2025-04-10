@@ -32,6 +32,20 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check if the username already exists
+	_, err = database.FindUserByParam("database.db", "username", newUser.Username)
+	if err == nil {
+		http.Error(w, "Username already exists.", http.StatusConflict)
+		return
+	}
+
+	// Check if the email already exists
+	_, err = database.FindUserByParam("database.db", "email", newUser.Email)
+	if err == nil {
+		http.Error(w, "Email already exists.", http.StatusConflict)
+		return
+	}
+
 	// Generate the password hash for the user
 	passwordHash, err := GenerateHash(newUser.Password)
 	if err != nil {

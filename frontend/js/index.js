@@ -107,11 +107,38 @@ async function register(user) {
     throw new Error("Invalid user");
   }
 
-  // Register the user using the user data
-  await postData("/register", user).then(() => {
-    // After registering, log in the user and redirect to the home page
-    login(user);
-  });
+  try {
+    // Make the registration request
+    const response = await fetch("/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user),
+    });
+
+    // Handle the response
+    if (response.ok) {
+      // After registering, log in the user and redirect to the home page
+      login(user);
+    } else if (response.status === 409) {
+      // Handle duplicate username/email error
+      const errorDiv = document.querySelector("#error-message");
+      errorDiv.textContent = "Username or email already exists. Please try again.";
+      errorDiv.classList.remove("hidden");
+    } else {
+      // Handle other errors
+      const errorDiv = document.querySelector("#error-message");
+      errorDiv.textContent = "An error occurred during registration. Please try again.";
+      errorDiv.classList.remove("hidden");
+    }
+  } catch (error) {
+    console.log("Registration error:", error);
+    // Show a generic error message for network errors
+    const errorDiv = document.querySelector("#error-message");
+    errorDiv.textContent = "An error occurred. Please try again.";
+    errorDiv.classList.remove("hidden");
+  }
 }
 
 async function logout() {

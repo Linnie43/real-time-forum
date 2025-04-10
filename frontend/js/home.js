@@ -262,7 +262,7 @@ class ChatWindow extends HTMLElement {
         <textarea id="chat-input" rows="1" maxlength="500" 
           placeholder="${this.receiverIsOnline ? '' : 'User offline'}"
           ${this.receiverIsOnline ? '' : 'disabled'}></textarea>
-        <button id="chat-send" ${this.receiverIsOnline ? '' : 'disabled'}>Send</button>
+        <button id="chat-send" ${this.receiverIsOnline ? '' : 'disabled'}>SEND</button>
       </div>
       </div>
     `;
@@ -465,10 +465,11 @@ class UserList extends HTMLElement {
     <div class="chat-sidebar">
       <h3>Users</h3>
       <div class="user-container">
-      <ul id="latest-list">
-      <ul id="user-list">
-      </ul>
-    </div>
+        <ul id="latest-list">
+        </ul>
+        <ul id="user-list">
+        </ul>
+      </div>
     </div>
     `;
 
@@ -476,6 +477,7 @@ class UserList extends HTMLElement {
   }
 
   async getUsers() {
+    // Fetch all users
     const USERS = await getData("/user");
     const CHATS = await getData(`/chat?user_id=${user.id}`); // Fetch chat history for the current user
     const USER_OBJECTS = {};
@@ -502,36 +504,41 @@ class UserList extends HTMLElement {
   }
 
   async addNotification(userId) {
+    if (!this.users[userId]) return;
+    
     this.users[userId].notification = true;
+    
     // Add the user to the top of #latest-list
     this.users[userId].remove();
     this.users[userId].typing = false;
     this.querySelector("#latest-list").prepend(this.users[userId]);
   }
 
-  // Add new user to the list alphabetically
+  
   async addUser(user) {
     const USER_ELEMENT = new User(user);
+    USER_ELEMENT.online = true;
+    
+    // Add new users to the alphabetical section by default
     const USER_LIST = this.querySelector("#user-list");
     const USER_ELEMENTS = USER_LIST.querySelectorAll("user-element");
-
-    USER_ELEMENT.online = true;
-
-    // Find the correct index to insert the user
-    let index = 0;
+    
+    // Find the correct alphabetical position
+    let inserted = false;
     for (let i = 0; i < USER_ELEMENTS.length; i++) {
-      if (USER_ELEMENTS[i].user.username > user.username) {
-        index = i;
+      if (USER_ELEMENTS[i].user.username.localeCompare(user.username) > 0) {
+        USER_LIST.insertBefore(USER_ELEMENT, USER_ELEMENTS[i]);
+        inserted = true;
         break;
       }
     }
-
-    // Insert the user at the correct index
-    USER_LIST.insertBefore(USER_ELEMENT, USER_ELEMENTS[index]);
-
+    
+    if (!inserted) {
+      USER_LIST.appendChild(USER_ELEMENT);
+    }
+    
     // Store the user in the collection
     this.users[user.id] = USER_ELEMENT;
-
     return USER_ELEMENT;
   }
 
@@ -558,17 +565,19 @@ class UserList extends HTMLElement {
 
   async addTypingIndicator(userId) {
     // If the user is not already typing, set the typing attribute
-    if (this.users[userId].typing !== true) {
+    if (this.users[userId] && this.users[userId].typing !== true) {
       this.users[userId].typing = true;
     }
 
     // Clear any existing timeout
-    clearTimeout(this.users[userId].typingTimer);
+    if (this.users[userId]) {
+      clearTimeout(this.users[userId].typingTimer);
 
-    // Start a new timeout to remove the typing attribute after 3 seconds of inactivity
-    this.users[userId].typingTimer = setTimeout(() => {
-      this.users[userId].typing = false;
-    }, 3000);
+      // Start a new timeout to remove the typing attribute after 3 seconds of inactivity
+      this.users[userId].typingTimer = setTimeout(() => {
+        this.users[userId].typing = false;
+      }, 3000);
+    }
   }
 }
 

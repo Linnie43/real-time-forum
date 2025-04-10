@@ -9,7 +9,6 @@ class AuthenticationPage extends HTMLElement {
         <form id="auth-form" action="/login" method="post">
           <label for="username">Username or Email</label>
           <input type="text" class="input" id="username-input" name="username" required/>
-          <br />
           <label for="password">Password</label>
           <input type="password" class="input" id="password-input" name="password" required minlength="6" maxlength="12"/>
           <br />
@@ -17,6 +16,7 @@ class AuthenticationPage extends HTMLElement {
         `,
         register: `
         <h1>Sign Up</h1>
+        <div id="error-message" class="error-message hidden"></div>
         <form id="auth-form" action="/register" method="post">
           <label for="first-name">First name </label>
           <input type="text" name="firstname" id="first-name-input" required pattern="\\w{1,16}">
