@@ -479,7 +479,20 @@ class UserList extends HTMLElement {
   async getUsers() {
     // Fetch all users
     const USERS = await getData("/user");
-    const CHATS = await getData(`/chat?user_id=${user.id}`); // Fetch chat history for the current user
+    let CHATS = { user_ids: [] }; // Default empty array
+    
+    try {
+      // Fetch chat history, but handle possible errors for new users
+      CHATS = await getData(`/chat?user_id=${user.id}`);
+      // Ensure user_ids is an array
+      if (!CHATS.user_ids || !Array.isArray(CHATS.user_ids)) {
+        CHATS.user_ids = [];
+      }
+    } catch (error) {
+      console.error("Error fetching chat data:", error);
+      // Continue with default empty array
+    }
+
     const USER_OBJECTS = {};
 
     // Sort users by last message time or alphabetically if no chat history
@@ -493,12 +506,13 @@ class UserList extends HTMLElement {
       return a.username.localeCompare(b.username); // Fallback to alphabetical order
     });
 
-    USERS.forEach((user) => {
-      const USER_ELEMENT = new User(user);
+    USERS.forEach((userData) => {
+      // Renamed variable to avoid conflict with global user
+      const USER_ELEMENT = new User(userData);
       this.querySelector("#user-list").appendChild(USER_ELEMENT);
 
       // Store the user in the collection
-      USER_OBJECTS[user.id] = USER_ELEMENT;
+      USER_OBJECTS[userData.id] = USER_ELEMENT;
     });
     return USER_OBJECTS;
   }
