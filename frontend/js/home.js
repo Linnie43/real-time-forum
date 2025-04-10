@@ -305,8 +305,13 @@ class ChatWindow extends HTMLElement {
 
     // Add the user to the top of #latest-list locally
     RECEIVER_USER_ELEMENT.remove();
-    document.querySelector("#latest-list").prepend(RECEIVER_USER_ELEMENT);
+    const latestList = document.querySelector("#latest-list");
+    latestList.prepend(RECEIVER_USER_ELEMENT);
 
+    // Ensure #latest-list is visible
+    if (latestList.children.length > 0) {
+      latestList.style.display = "flex"; // Reset display to flex
+    }
  
     const CHAT_MESSAGE = new ChatMessage(user, CHAT_INPUT.value, new Date(), true); // Sent by you
     CHAT_LIST.appendChild(CHAT_MESSAGE);
@@ -474,6 +479,12 @@ class UserList extends HTMLElement {
     `;
 
     this.users = await this.getUsers();
+
+    // Hide #latest-list if it has no child elements
+    const latestList = this.querySelector("#latest-list");
+    if (latestList && latestList.children.length === 0) {
+      latestList.style.display = "none";
+    }
   }
 
   async getUsers() {
@@ -519,13 +530,19 @@ class UserList extends HTMLElement {
 
   async addNotification(userId) {
     if (!this.users[userId]) return;
-    
+  
     this.users[userId].notification = true;
-    
+  
     // Add the user to the top of #latest-list
     this.users[userId].remove();
     this.users[userId].typing = false;
-    this.querySelector("#latest-list").prepend(this.users[userId]);
+    const latestList = this.querySelector("#latest-list");
+    latestList.prepend(this.users[userId]);
+  
+    // Ensure #latest-list is visible
+    if (latestList.children.length > 0) {
+      latestList.style.display = "flex"; // Reset display to flex
+    }
   }
 
   
