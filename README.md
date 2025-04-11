@@ -1,14 +1,14 @@
-# Real-Time Forum
+# Real-Time-Forum
 
 ## Overview
-Real-Time Forum is a web-based application themed around school-life that allows users to interact in real-time through posts, comments, and private messaging.
+Real-Time-Forum is a web-based application themed around school-life that allows users to interact in real-time through posts, comments, and private messaging.
 
 ## Features
 - **User Authentication**: Login and registration with session management.
 - **Posts and Comments**: Users can create posts, comment on posts, and filter posts by categories.
 - **Real-Time Chat**: Private messaging with typing indicators and online status updates.
 
-## Technologies Used
+## Tech Stack
 - **Frontend**: HTML, CSS, JavaScript
 - **Backend**: Go
 - **Database**: SQLite
@@ -37,7 +37,7 @@ Real-Time Forum is a web-based application themed around school-life that allows
    The server will start at `http://localhost:8080`.
 
 5. **Access the Application**:
-   Open your browser and navigate to `http://localhost:8080`.
+   Visit `http://localhost:8080`.
 
 ## Project Structure
 ```
@@ -60,6 +60,6 @@ real-time-forum/
 - **Comment**: Engage with others by commenting on posts.
 - **Chat**: Start private conversations with other online users in real-time.
 
-## Made by:
+## Created by:
 - Linnea Gabrielsson
 - Kira Schauman
