@@ -121,7 +121,7 @@ async function register(user) {
     if (response.ok) {
       // After registering, log in the user and redirect to the home page
       login(user);
-    } else if (response.status === 409) {
+    } else if (response.status === 409) { // conflict
       // Handle duplicate username/email error
       const errorDiv = document.querySelector("#error-message");
       errorDiv.textContent = "Username or email already exists. Please try again.";
@@ -208,7 +208,7 @@ document.querySelector(".logo").addEventListener("click", () => {
   });
 });
 
-let reloadTimeout;
+let reloadTimeout; // Variable to store the timeout ID used for debouncing
 
 document.addEventListener("DOMContentLoaded", () => {
   clearTimeout(reloadTimeout); // Clear any previous reload timeout

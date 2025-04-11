@@ -35,12 +35,11 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.register:
-			// h.clients[client] = true
 			h.clients[client.userID] = client
 
 			var uids []int
 
-			for i, _ := range h.clients {
+			for i := range h.clients {
 				uids = append(uids, i)
 			}
 

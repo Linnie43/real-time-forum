@@ -194,7 +194,7 @@ class ChatWindow extends HTMLElement {
           // Throttle scroll event
           setTimeout(() => {
             isScrolling = false;
-          }, 300);
+          }, 500);
         }
       }
 
@@ -493,7 +493,7 @@ class UserList extends HTMLElement {
     let CHATS = { user_ids: [] }; // Default empty array
     
     try {
-      // Fetch chat history, but handle possible errors for new users
+      // Fetch chat history
       CHATS = await getData(`/chat?user_id=${user.id}`);
       // Ensure user_ids is an array
       if (!CHATS.user_ids || !Array.isArray(CHATS.user_ids)) {
@@ -592,23 +592,6 @@ class UserList extends HTMLElement {
 
       this.users[userId].online = true;
     });
-  }
-
-  async addTypingIndicator(userId) {
-    // If the user is not already typing, set the typing attribute
-    if (this.users[userId] && this.users[userId].typing !== true) {
-      this.users[userId].typing = true;
-    }
-
-    // Clear any existing timeout
-    if (this.users[userId]) {
-      clearTimeout(this.users[userId].typingTimer);
-
-      // Start a new timeout to remove the typing attribute after 3 seconds of inactivity
-      this.users[userId].typingTimer = setTimeout(() => {
-        this.users[userId].typing = false;
-      }, 3000);
-    }
   }
 }
 
