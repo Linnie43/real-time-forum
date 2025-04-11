@@ -1,20 +1,6 @@
 /* Import fonts */
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
 @import url('https://fonts.googleapis.com/css2?family=Limelight&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap');
-
-@keyframes notification-bounce {
-    0% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-5px);
-    }
-    100% {
-        transform: translateY(0);
-    }
-}
 
 :root {
     --red: #ed6a5a;
@@ -327,7 +313,7 @@ chat-window .chat-footer button:hover {
 .chat-message {
     display: flex;
     flex-direction: column;
-    padding: 6px 4px;
+    padding: 6px 6px;
     margin: 6px 0;
     opacity: 0; /* Start invisible */
     animation: message-appear 0.3s ease forwards; /* Apply the animation */
@@ -416,8 +402,12 @@ chat-window .chat-footer button:hover {
     gap: 6px;
     flex-direction: column;
     list-style-type: none; 
-    padding: 0;
-    margin: 0 0 6px 0;
+    padding: 0 0 6px 0;
+    margin: 0;
+}
+
+#latest-list:empty {
+    display: none;
 }
 
 /* User Element */
@@ -451,6 +441,18 @@ user-element[online] {
 user-element[notification] {
     background-color: #fff7de;
     animation: notification-bounce 0.5s ease-in-out;
+}
+
+@keyframes notification-bounce {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+    100% {
+        transform: translateY(0);
+    }
 }
 
 user-element[typing]::after {
