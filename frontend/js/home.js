@@ -459,6 +459,7 @@ class UserList extends HTMLElement {
   constructor() {
     super();
     this.users = {};
+    this.interactedUsers = JSON.parse(localStorage.getItem("interactedUsers")) || []; // Load interacted users
   }
 
   async connectedCallback() {
@@ -467,15 +468,13 @@ class UserList extends HTMLElement {
 
   async render() {
     this.innerHTML = `
-    <div class="chat-sidebar">
-      <h3>Users</h3>
-      <div class="user-container">
-        <ul id="latest-list">
-        </ul>
-        <ul id="user-list">
-        </ul>
+      <div class="chat-sidebar">
+        <h3>Users</h3>
+        <div class="user-container">
+          <ul id="latest-list"></ul>
+          <ul id="user-list"></ul>
+        </div>
       </div>
-    </div>
     `;
 
     this.users = await this.getUsers();
@@ -490,86 +489,81 @@ class UserList extends HTMLElement {
   async getUsers() {
     // Fetch all users
     const USERS = await getData("/user");
-    let CHATS = { user_ids: [] }; // Default empty array
-    
-    try {
-      // Fetch chat history
-      CHATS = await getData(`/chat?user_id=${user.id}`);
-      // Ensure user_ids is an array
-      if (!CHATS.user_ids || !Array.isArray(CHATS.user_ids)) {
-        CHATS.user_ids = [];
-      }
-    } catch (error) {
-      console.error("Error fetching chat data:", error);
-      // Continue with default empty array
-    }
-
     const USER_OBJECTS = {};
 
-    // Sort users by last message time or alphabetically if no chat history
-    USERS.sort((a, b) => {
-      const chatA = CHATS.user_ids.includes(a.id) ? CHATS.user_ids.indexOf(a.id) : Infinity;
-      const chatB = CHATS.user_ids.includes(b.id) ? CHATS.user_ids.indexOf(b.id) : Infinity;
-
-      if (chatA !== chatB) {
-        return chatA - chatB; // Sort by chat history
-      }
-      return a.username.localeCompare(b.username); // Fallback to alphabetical order
-    });
-
     USERS.forEach((userData) => {
-      // Renamed variable to avoid conflict with global user
       const USER_ELEMENT = new User(userData);
-      this.querySelector("#user-list").appendChild(USER_ELEMENT);
-
-      // Store the user in the collection
       USER_OBJECTS[userData.id] = USER_ELEMENT;
     });
+
     return USER_OBJECTS;
+  }
+
+  updateUserList() {
+    const USER_LIST = this.querySelector("#user-list");
+    USER_LIST.innerHTML = ""; // Clear the list
+
+    // Sort users: interacted users first (in order of interaction), then alphabetical
+    const sortedUsers = Object.values(this.users).sort((a, b) => {
+      const indexA = this.interactedUsers.indexOf(a.user.id);
+      const indexB = this.interactedUsers.indexOf(b.user.id);
+
+      if (indexA !== -1 && indexB !== -1) {
+        // Both users are in the interacted list, sort by interaction order
+        return indexA - indexB;
+      } else if (indexA !== -1) {
+        // Only A is in the interacted list, A comes first
+        return -1;
+      } else if (indexB !== -1) {
+        // Only B is in the interacted list, B comes first
+        return 1;
+      } else {
+        // Neither user is in the interacted list, sort alphabetically
+        return a.user.username.localeCompare(b.user.username);
+      }
+    });
+
+    // Append sorted users to the list
+    sortedUsers.forEach((userElement) => {
+      USER_LIST.appendChild(userElement);
+    });
+  }
+
+  addInteractedUser(userId) {
+    // Remove the user from the interacted list if it already exists
+    const index = this.interactedUsers.indexOf(userId);
+    if (index !== -1) {
+      this.interactedUsers.splice(index, 1);
+    }
+
+    // Add the user to the top of the interacted list
+    this.interactedUsers.unshift(userId);
+
+    // Persist the interacted users list in localStorage
+    localStorage.setItem("interactedUsers", JSON.stringify(this.interactedUsers));
+
+    // Update the user list to reflect the new order
+    this.updateUserList();
   }
 
   async addNotification(userId) {
     if (!this.users[userId]) return;
-  
+
     this.users[userId].notification = true;
-  
-    // Add the user to the top of #latest-list
-    this.users[userId].remove();
-    this.users[userId].typing = false;
-    const latestList = this.querySelector("#latest-list");
-    latestList.prepend(this.users[userId]);
-  
-    // Ensure #latest-list is visible
-    if (latestList.children.length > 0) {
-      latestList.style.display = "flex"; // Reset display to flex
-    }
+
+    // Update interacted users and refresh the list
+    this.addInteractedUser(userId);
   }
 
-  
   async addUser(user) {
     const USER_ELEMENT = new User(user);
     USER_ELEMENT.online = true;
-    
-    // Add new users to the alphabetical section by default
-    const USER_LIST = this.querySelector("#user-list");
-    const USER_ELEMENTS = USER_LIST.querySelectorAll("user-element");
-    
-    // Find the correct alphabetical position
-    let inserted = false;
-    for (let i = 0; i < USER_ELEMENTS.length; i++) {
-      if (USER_ELEMENTS[i].user.username.localeCompare(user.username) > 0) {
-        USER_LIST.insertBefore(USER_ELEMENT, USER_ELEMENTS[i]);
-        inserted = true;
-        break;
-      }
-    }
-    
-    if (!inserted) {
-      USER_LIST.appendChild(USER_ELEMENT);
-    }
-    
-    // Store the user in the collection
+
+    // Add the user to the collection
     this.users[user.id] = USER_ELEMENT;
+
+    // Update the user list
+    this.updateUserList();
     return USER_ELEMENT;
   }
 
@@ -581,17 +575,13 @@ class UserList extends HTMLElement {
 
     // Add online status to new users
     newOnlineUserIds.forEach((userId) => {
-      // If the user is not in the list, add them
-      if (this.users[userId] === undefined) {
-        getData(`/user?id=${userId}`).then((data) => {
-          return this.addUser(data);
-        });
-
-        return;
+      if (this.users[userId]) {
+        this.users[userId].online = true;
       }
-
-      this.users[userId].online = true;
     });
+
+    // Refresh the user list
+    this.updateUserList();
   }
 }
 
