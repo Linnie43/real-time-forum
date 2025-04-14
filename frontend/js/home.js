@@ -194,7 +194,7 @@ class ChatWindow extends HTMLElement {
           // Throttle scroll event
           setTimeout(() => {
             isScrolling = false;
-          }, 500);
+          }, 300);
         }
       }
 
@@ -293,27 +293,30 @@ class ChatWindow extends HTMLElement {
     const CHAT_INPUT = this.querySelector("#chat-input");
     const CHAT_BODY = this.querySelector(".chat-body");
     const CHAT_LIST = CHAT_BODY.querySelector("#chat-list");
-
+  
     if (!CHAT_INPUT.value || !socket) {
       console.log("No message or socket");
       return;
     }
-
+  
     const RECEIVER_USER_ELEMENT = document.querySelector(
       `user-element[user-id="${this.receiver.id}"]`
     );
-
-    // Add the user to the top of #latest-list locally
-    RECEIVER_USER_ELEMENT.remove();
-    const latestList = document.querySelector("#latest-list");
-    latestList.prepend(RECEIVER_USER_ELEMENT);
-
-    // Ensure #latest-list is visible
-    if (latestList.children.length > 0) {
-      latestList.style.display = "flex"; // Reset display to flex
+  
+    // Move user to top of recent list in UI
+    if (RECEIVER_USER_ELEMENT) {
+      RECEIVER_USER_ELEMENT.remove();
+      document.querySelector("#latest-list").prepend(RECEIVER_USER_ELEMENT);
     }
- 
-    const CHAT_MESSAGE = new ChatMessage(user, CHAT_INPUT.value, new Date(), true); // Sent by you
+  
+    // Update localStorage using markUserAsRecent
+    const USER_LIST_COMPONENT = document.querySelector("user-list");
+    if (USER_LIST_COMPONENT && typeof USER_LIST_COMPONENT.markUserAsRecent === "function") {
+      USER_LIST_COMPONENT.markUserAsRecent(this.receiver.id);
+    }
+  
+    // Continue with message sending
+    const CHAT_MESSAGE = new ChatMessage(user, CHAT_INPUT.value, new Date(), true);
     CHAT_LIST.appendChild(CHAT_MESSAGE);
     CHAT_BODY.scrollTop = CHAT_LIST.scrollHeight;
     CHAT_INPUT.value = "";
@@ -329,6 +332,7 @@ class ChatWindow extends HTMLElement {
   
     socket.send(JSON.stringify(msgData));
   }
+  
 
   async receiveMessage(message) {
     // Check if this message belongs to the current conversation
@@ -459,7 +463,6 @@ class UserList extends HTMLElement {
   constructor() {
     super();
     this.users = {};
-    this.interactedUsers = JSON.parse(localStorage.getItem("interactedUsers")) || []; // Load interacted users
   }
 
   async connectedCallback() {
@@ -468,102 +471,119 @@ class UserList extends HTMLElement {
 
   async render() {
     this.innerHTML = `
-      <div class="chat-sidebar">
-        <h3>Users</h3>
-        <div class="user-container">
-          <ul id="latest-list"></ul>
-          <ul id="user-list"></ul>
-        </div>
+    <div class="chat-sidebar">
+      <h3>Users</h3>
+      <div class="user-container">
+        <ul id="latest-list">
+        </ul>
+        <ul id="user-list">
+        </ul>
       </div>
+    </div>
     `;
 
     this.users = await this.getUsers();
-
-    // Hide #latest-list if it has no child elements
-    const latestList = this.querySelector("#latest-list");
-    if (latestList && latestList.children.length === 0) {
-      latestList.style.display = "none";
-    }
   }
 
   async getUsers() {
-    // Fetch all users
     const USERS = await getData("/user");
+    let CHATS = { user_ids: [] };
+  
+    try {
+      CHATS = await getData(`/chat?user_id=${user.id}`);
+      if (!CHATS.user_ids || !Array.isArray(CHATS.user_ids)) {
+        CHATS.user_ids = [];
+      }
+    } catch (error) {
+      console.error("Error fetching chat data:", error);
+      // Fallback to localStorage
+      const fallback = localStorage.getItem("recentChats");
+      CHATS.user_ids = fallback ? JSON.parse(fallback) : [];
+    }
+  
+    // Save CHATS.user_ids to localStorage as backup for next time
+    localStorage.setItem("recentChats", JSON.stringify(CHATS.user_ids));
+  
     const USER_OBJECTS = {};
-
-    USERS.forEach((userData) => {
+    const RECENT_LIST = this.querySelector("#latest-list");
+    const ALPHA_LIST = this.querySelector("#user-list");
+  
+    RECENT_LIST.innerHTML = "";
+    ALPHA_LIST.innerHTML = "";
+  
+    const RECENT_USERS = USERS.filter(u => CHATS.user_ids.includes(u.id));
+    const NEW_USERS = USERS.filter(u => !CHATS.user_ids.includes(u.id));
+  
+    // Optional: sort recent users by their order in CHATS.user_ids
+    RECENT_USERS.sort((a, b) =>
+      CHATS.user_ids.indexOf(a.id) - CHATS.user_ids.indexOf(b.id)
+    );
+  
+    NEW_USERS.sort((a, b) => a.username.localeCompare(b.username));
+  
+    RECENT_USERS.forEach(userData => {
       const USER_ELEMENT = new User(userData);
+      RECENT_LIST.appendChild(USER_ELEMENT);
       USER_OBJECTS[userData.id] = USER_ELEMENT;
     });
-
+  
+    NEW_USERS.forEach(userData => {
+      const USER_ELEMENT = new User(userData);
+      ALPHA_LIST.appendChild(USER_ELEMENT);
+      USER_OBJECTS[userData.id] = USER_ELEMENT;
+    });
+  
     return USER_OBJECTS;
   }
-
-  updateUserList() {
-    const USER_LIST = this.querySelector("#user-list");
-    USER_LIST.innerHTML = ""; // Clear the list
-
-    // Sort users: interacted users first (in order of interaction), then alphabetical
-    const sortedUsers = Object.values(this.users).sort((a, b) => {
-      const indexA = this.interactedUsers.indexOf(a.user.id);
-      const indexB = this.interactedUsers.indexOf(b.user.id);
-
-      if (indexA !== -1 && indexB !== -1) {
-        // Both users are in the interacted list, sort by interaction order
-        return indexA - indexB;
-      } else if (indexA !== -1) {
-        // Only A is in the interacted list, A comes first
-        return -1;
-      } else if (indexB !== -1) {
-        // Only B is in the interacted list, B comes first
-        return 1;
-      } else {
-        // Neither user is in the interacted list, sort alphabetically
-        return a.user.username.localeCompare(b.user.username);
-      }
-    });
-
-    // Append sorted users to the list
-    sortedUsers.forEach((userElement) => {
-      USER_LIST.appendChild(userElement);
-    });
+  
+  markUserAsRecent(userId) {
+    let recent = JSON.parse(localStorage.getItem("recentChats") || "[]");
+    
+    // Remove if it already exists
+    recent = recent.filter(id => id !== userId);
+    // Add to front of the list (most recent first)
+    recent.unshift(userId);
+  
+    localStorage.setItem("recentChats", JSON.stringify(recent));
   }
-
-  addInteractedUser(userId) {
-    // Remove the user from the interacted list if it already exists
-    const index = this.interactedUsers.indexOf(userId);
-    if (index !== -1) {
-      this.interactedUsers.splice(index, 1);
-    }
-
-    // Add the user to the top of the interacted list
-    this.interactedUsers.unshift(userId);
-
-    // Persist the interacted users list in localStorage
-    localStorage.setItem("interactedUsers", JSON.stringify(this.interactedUsers));
-
-    // Update the user list to reflect the new order
-    this.updateUserList();
-  }
+  
 
   async addNotification(userId) {
     if (!this.users[userId]) return;
-
+    
     this.users[userId].notification = true;
-
-    // Update interacted users and refresh the list
-    this.addInteractedUser(userId);
+    
+    // Add the user to the top of #latest-list
+    this.users[userId].remove();
+    this.users[userId].typing = false;
+    this.querySelector("#latest-list").prepend(this.users[userId]);
   }
 
+  
   async addUser(user) {
     const USER_ELEMENT = new User(user);
     USER_ELEMENT.online = true;
-
-    // Add the user to the collection
+    
+    // Add new users to the alphabetical section by default
+    const USER_LIST = this.querySelector("#user-list");
+    const USER_ELEMENTS = USER_LIST.querySelectorAll("user-element");
+    
+    // Find the correct alphabetical position
+    let inserted = false;
+    for (let i = 0; i < USER_ELEMENTS.length; i++) {
+      if (USER_ELEMENTS[i].user.username.localeCompare(user.username) > 0) {
+        USER_LIST.insertBefore(USER_ELEMENT, USER_ELEMENTS[i]);
+        inserted = true;
+        break;
+      }
+    }
+    
+    if (!inserted) {
+      USER_LIST.appendChild(USER_ELEMENT);
+    }
+    
+    // Store the user in the collection
     this.users[user.id] = USER_ELEMENT;
-
-    // Update the user list
-    this.updateUserList();
     return USER_ELEMENT;
   }
 
@@ -575,13 +595,34 @@ class UserList extends HTMLElement {
 
     // Add online status to new users
     newOnlineUserIds.forEach((userId) => {
-      if (this.users[userId]) {
-        this.users[userId].online = true;
-      }
-    });
+      // If the user is not in the list, add them
+      if (this.users[userId] === undefined) {
+        getData(`/user?id=${userId}`).then((data) => {
+          return this.addUser(data);
+        });
 
-    // Refresh the user list
-    this.updateUserList();
+        return;
+      }
+
+      this.users[userId].online = true;
+    });
+  }
+
+  async addTypingIndicator(userId) {
+    // If the user is not already typing, set the typing attribute
+    if (this.users[userId] && this.users[userId].typing !== true) {
+      this.users[userId].typing = true;
+    }
+
+    // Clear any existing timeout
+    if (this.users[userId]) {
+      clearTimeout(this.users[userId].typingTimer);
+
+      // Start a new timeout to remove the typing attribute after 3 seconds of inactivity
+      this.users[userId].typingTimer = setTimeout(() => {
+        this.users[userId].typing = false;
+      }, 3000);
+    }
   }
 }
 
