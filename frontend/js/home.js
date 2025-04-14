@@ -194,7 +194,7 @@ class ChatWindow extends HTMLElement {
           // Throttle scroll event
           setTimeout(() => {
             isScrolling = false;
-          }, 500);
+          }, 300);
         }
       }
 
@@ -293,27 +293,30 @@ class ChatWindow extends HTMLElement {
     const CHAT_INPUT = this.querySelector("#chat-input");
     const CHAT_BODY = this.querySelector(".chat-body");
     const CHAT_LIST = CHAT_BODY.querySelector("#chat-list");
-
+  
     if (!CHAT_INPUT.value || !socket) {
       console.log("No message or socket");
       return;
     }
-
+  
     const RECEIVER_USER_ELEMENT = document.querySelector(
       `user-element[user-id="${this.receiver.id}"]`
     );
-
-    // Add the user to the top of #latest-list locally
-    RECEIVER_USER_ELEMENT.remove();
-    const latestList = document.querySelector("#latest-list");
-    latestList.prepend(RECEIVER_USER_ELEMENT);
-
-    // Ensure #latest-list is visible
-    if (latestList.children.length > 0) {
-      latestList.style.display = "flex"; // Reset display to flex
+  
+    // Move user to top of recent list in UI
+    if (RECEIVER_USER_ELEMENT) {
+      RECEIVER_USER_ELEMENT.remove();
+      document.querySelector("#latest-list").prepend(RECEIVER_USER_ELEMENT);
     }
- 
-    const CHAT_MESSAGE = new ChatMessage(user, CHAT_INPUT.value, new Date(), true); // Sent by you
+  
+    // Update localStorage using markUserAsRecent
+    const USER_LIST_COMPONENT = document.querySelector("user-list");
+    if (USER_LIST_COMPONENT && typeof USER_LIST_COMPONENT.markUserAsRecent === "function") {
+      USER_LIST_COMPONENT.markUserAsRecent(this.receiver.id);
+    }
+  
+    // Continue with message sending
+    const CHAT_MESSAGE = new ChatMessage(user, CHAT_INPUT.value, new Date(), true);
     CHAT_LIST.appendChild(CHAT_MESSAGE);
     CHAT_BODY.scrollTop = CHAT_LIST.scrollHeight;
     CHAT_INPUT.value = "";
@@ -329,6 +332,7 @@ class ChatWindow extends HTMLElement {
   
     socket.send(JSON.stringify(msgData));
   }
+  
 
   async receiveMessage(message) {
     // Check if this message belongs to the current conversation
@@ -479,69 +483,80 @@ class UserList extends HTMLElement {
     `;
 
     this.users = await this.getUsers();
-
-    // Hide #latest-list if it has no child elements
-    const latestList = this.querySelector("#latest-list");
-    if (latestList && latestList.children.length === 0) {
-      latestList.style.display = "none";
-    }
   }
 
   async getUsers() {
-    // Fetch all users
     const USERS = await getData("/user");
-    let CHATS = { user_ids: [] }; // Default empty array
-    
+    let CHATS = { user_ids: [] };
+  
     try {
-      // Fetch chat history
       CHATS = await getData(`/chat?user_id=${user.id}`);
-      // Ensure user_ids is an array
       if (!CHATS.user_ids || !Array.isArray(CHATS.user_ids)) {
         CHATS.user_ids = [];
       }
     } catch (error) {
       console.error("Error fetching chat data:", error);
-      // Continue with default empty array
+      // Fallback to localStorage
+      const fallback = localStorage.getItem("recentChats");
+      CHATS.user_ids = fallback ? JSON.parse(fallback) : [];
     }
-
+  
+    // Save CHATS.user_ids to localStorage as backup for next time
+    localStorage.setItem("recentChats", JSON.stringify(CHATS.user_ids));
+  
     const USER_OBJECTS = {};
-
-    // Sort users by last message time or alphabetically if no chat history
-    USERS.sort((a, b) => {
-      const chatA = CHATS.user_ids.includes(a.id) ? CHATS.user_ids.indexOf(a.id) : Infinity;
-      const chatB = CHATS.user_ids.includes(b.id) ? CHATS.user_ids.indexOf(b.id) : Infinity;
-
-      if (chatA !== chatB) {
-        return chatA - chatB; // Sort by chat history
-      }
-      return a.username.localeCompare(b.username); // Fallback to alphabetical order
-    });
-
-    USERS.forEach((userData) => {
+    const RECENT_LIST = this.querySelector("#latest-list");
+    const ALPHA_LIST = this.querySelector("#user-list");
+  
+    RECENT_LIST.innerHTML = "";
+    ALPHA_LIST.innerHTML = "";
+  
+    const RECENT_USERS = USERS.filter(u => CHATS.user_ids.includes(u.id));
+    const NEW_USERS = USERS.filter(u => !CHATS.user_ids.includes(u.id));
+  
+    // Optional: sort recent users by their order in CHATS.user_ids
+    RECENT_USERS.sort((a, b) =>
+      CHATS.user_ids.indexOf(a.id) - CHATS.user_ids.indexOf(b.id)
+    );
+  
+    NEW_USERS.sort((a, b) => a.username.localeCompare(b.username));
+  
+    RECENT_USERS.forEach(userData => {
       const USER_ELEMENT = new User(userData);
-      this.querySelector("#user-list").appendChild(USER_ELEMENT);
-
-      // Store the user in the collection
+      RECENT_LIST.appendChild(USER_ELEMENT);
       USER_OBJECTS[userData.id] = USER_ELEMENT;
     });
+  
+    NEW_USERS.forEach(userData => {
+      const USER_ELEMENT = new User(userData);
+      ALPHA_LIST.appendChild(USER_ELEMENT);
+      USER_OBJECTS[userData.id] = USER_ELEMENT;
+    });
+  
     return USER_OBJECTS;
   }
+  
+  markUserAsRecent(userId) {
+    let recent = JSON.parse(localStorage.getItem("recentChats") || "[]");
+    
+    // Remove if it already exists
+    recent = recent.filter(id => id !== userId);
+    // Add to front of the list (most recent first)
+    recent.unshift(userId);
+  
+    localStorage.setItem("recentChats", JSON.stringify(recent));
+  }
+  
 
   async addNotification(userId) {
     if (!this.users[userId]) return;
-  
+    
     this.users[userId].notification = true;
-  
+    
     // Add the user to the top of #latest-list
     this.users[userId].remove();
     this.users[userId].typing = false;
-    const latestList = this.querySelector("#latest-list");
-    latestList.prepend(this.users[userId]);
-  
-    // Ensure #latest-list is visible
-    if (latestList.children.length > 0) {
-      latestList.style.display = "flex"; // Reset display to flex
-    }
+    this.querySelector("#latest-list").prepend(this.users[userId]);
   }
 
   
@@ -591,6 +606,23 @@ class UserList extends HTMLElement {
 
       this.users[userId].online = true;
     });
+  }
+
+  async addTypingIndicator(userId) {
+    // If the user is not already typing, set the typing attribute
+    if (this.users[userId] && this.users[userId].typing !== true) {
+      this.users[userId].typing = true;
+    }
+
+    // Clear any existing timeout
+    if (this.users[userId]) {
+      clearTimeout(this.users[userId].typingTimer);
+
+      // Start a new timeout to remove the typing attribute after 3 seconds of inactivity
+      this.users[userId].typingTimer = setTimeout(() => {
+        this.users[userId].typing = false;
+      }, 3000);
+    }
   }
 }
 

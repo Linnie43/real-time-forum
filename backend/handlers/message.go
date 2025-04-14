@@ -36,7 +36,7 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 		//Grabs the receiver id from the url
 		receiver := r.URL.Query().Get("receiver")
 
-		//Grabs the offset from the url
+		//Grabs the offset from the url, offset is the number of messages to skip
 		offset := r.URL.Query().Get("offset")
 		offsetInt, err := strconv.Atoi(offset)
 		if err != nil {

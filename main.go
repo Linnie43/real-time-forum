@@ -16,7 +16,7 @@ func main() {
 	hub := chat.NewHub()
 	go hub.Run()
 
-	// Setup the routes
+	// Setup routes
 	http.Handle("/styles.css", http.FileServer(http.Dir("./frontend")))
 	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./frontend/js"))))
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {

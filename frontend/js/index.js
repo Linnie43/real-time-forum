@@ -127,14 +127,12 @@ async function register(user) {
       errorDiv.textContent = "Username or email already exists. Please try again.";
       errorDiv.classList.remove("hidden");
     } else {
-      // Handle other errors
       const errorDiv = document.querySelector("#error-message");
       errorDiv.textContent = "An error occurred during registration. Please try again.";
       errorDiv.classList.remove("hidden");
     }
   } catch (error) {
     console.log("Registration error:", error);
-    // Show a generic error message for network errors
     const errorDiv = document.querySelector("#error-message");
     errorDiv.textContent = "An error occurred. Please try again.";
     errorDiv.classList.remove("hidden");

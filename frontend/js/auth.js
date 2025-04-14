@@ -1,7 +1,7 @@
 class AuthenticationPage extends HTMLElement {
     constructor(type = "login") {
-      // default contructor type to login
-      super(); // call the parent constructor, HTMLElement. This is required for all custom elements
+      // Default contructor type to login
+      super(); // Call the parent constructor, HTMLElement. This is required for all custom elements
       this.forms = {
         login: `
         <h1>Welcome</h1>
@@ -42,12 +42,12 @@ class AuthenticationPage extends HTMLElement {
         </form>
         `,
       };
-      this.type = type; // type is set to either login or register
+      this.type = type; // Type is set to either login or register
     }
 
     // METHODS:
 
-    // generateUser is a method to generate a user object from the form data
+    // GenerateUser is a method to generate a user object from the form data
     generateUser(formData) {
       if (this.type === "login") {
         return {
@@ -67,7 +67,7 @@ class AuthenticationPage extends HTMLElement {
         };
       }
     }
-    // submitData is a method to submit the form data
+    // SubmitData is a method to submit the form data
     submitData() {
       const FORM = this.querySelector("#auth-form");
       const FORM_DATA = new FormData(FORM); // create a new FormData object from the form
@@ -89,17 +89,17 @@ class AuthenticationPage extends HTMLElement {
       };
     }
   
-    get type() { // get type of the form
+    get type() {
       return this._type;
     }
   
-    set type(type) { // set type of the form
+    set type(type) {
       if (type !== "login" && type !== "register") {
         throw new Error("Invalid type");
       }
   
       this._type = type;
-      this.displayForm(); // display the form with the new type
+      this.displayForm(); // Display the form with the new type
     }
   }
   
@@ -119,9 +119,9 @@ class AuthenticationPage extends HTMLElement {
   
     update() {
       if (page instanceof AuthenticationPage) {
-        this.formBehavior(); // if page is an instance of AuthenticationPage, call formBehavior
+        this.formBehavior(); // If page is an instance of AuthenticationPage, call formBehavior
       } else {
-        this.logoutBehavior(); // else call logoutBehavior
+        this.logoutBehavior(); // Else call logoutBehavior
       }
     }
     // Toggle between login and register forms on button click
