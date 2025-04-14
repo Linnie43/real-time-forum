@@ -518,7 +518,6 @@ class UserList extends HTMLElement {
     });
 
     USERS.forEach((userData) => {
-      // Renamed variable to avoid conflict with global user
       const USER_ELEMENT = new User(userData);
       this.querySelector("#user-list").appendChild(USER_ELEMENT);
 
