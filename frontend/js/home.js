@@ -336,9 +336,6 @@ class ChatWindow extends HTMLElement {
 
   async receiveMessage(message) {
     // Check if this message belongs to the current conversation
-    // A message belongs to this conversation if:
-    // 1. The current user is the receiver and the sender is the chat partner, OR
-    // 2. The current user is the sender and the receiver is the chat partner
     if (!((message.sender_id === this.receiver.id && message.receiver_id === user.id) || 
           (message.sender_id === user.id && message.receiver_id === this.receiver.id))) {
         return; // Skip messages not part of this conversation
@@ -514,7 +511,6 @@ class UserList extends HTMLElement {
     const RECENT_USERS = USERS.filter(u => CHATS.user_ids.includes(u.id));
     const NEW_USERS = USERS.filter(u => !CHATS.user_ids.includes(u.id));
   
-    // Optional: sort recent users by their order in CHATS.user_ids
     RECENT_USERS.sort((a, b) =>
       CHATS.user_ids.indexOf(a.id) - CHATS.user_ids.indexOf(b.id)
     );

@@ -45,9 +45,6 @@ class AuthenticationPage extends HTMLElement {
       this.type = type; // Type is set to either login or register
     }
 
-    // METHODS:
-
-    // GenerateUser is a method to generate a user object from the form data
     generateUser(formData) {
       if (this.type === "login") {
         return {
@@ -67,7 +64,7 @@ class AuthenticationPage extends HTMLElement {
         };
       }
     }
-    // SubmitData is a method to submit the form data
+
     submitData() {
       const FORM = this.querySelector("#auth-form");
       const FORM_DATA = new FormData(FORM); // create a new FormData object from the form
