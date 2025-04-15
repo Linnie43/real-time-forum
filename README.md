@@ -17,7 +17,7 @@ Real-Time-Forum is a web-based application themed around school-life that allows
 ## Setup Instructions
 1. **Clone the Repository**:
    ```bash
-   git clone <repository-url>
+   git clone https://01.gritlab.ax/git/lgabriel/real-time-forum.git
    cd real-time-forum
    ```
 
