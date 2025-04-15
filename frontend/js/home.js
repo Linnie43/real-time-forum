@@ -603,23 +603,6 @@ class UserList extends HTMLElement {
       this.users[userId].online = true;
     });
   }
-
-  async addTypingIndicator(userId) {
-    // If the user is not already typing, set the typing attribute
-    if (this.users[userId] && this.users[userId].typing !== true) {
-      this.users[userId].typing = true;
-    }
-
-    // Clear any existing timeout
-    if (this.users[userId]) {
-      clearTimeout(this.users[userId].typingTimer);
-
-      // Start a new timeout to remove the typing attribute after 3 seconds of inactivity
-      this.users[userId].typingTimer = setTimeout(() => {
-        this.users[userId].typing = false;
-      }, 3000);
-    }
-  }
 }
 
 customElements.define("user-list", UserList);
